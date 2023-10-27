@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Introduction to Data Science - Workshop Edition</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Luis Fernando Ramirez, Elena Dreyer and Shruti Kakade" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <script src="libs/kePrint/kePrint.js"></script>
+    <link href="libs/lightable/lightable.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Introduction to Data Science - Workshop Edition
+]
+.subtitle[
+## Cleaning and wrangling data with <code>janitor</code> and <code>forcats</code>
+]
+.author[
+### Luis Fernando Ramirez, Elena Dreyer and Shruti Kakade
+]
+.institute[
+### Hertie School | <a href="https://github.com/intro-to-data-science-23/workshop-presentations">GRAD-C11/E1339</a>
+]
+
+---
+
+
+
+
+
+
+
+&lt;style type="text/css"&gt;
+/*.columns { display: flex; }*/
+
+a, a &gt; code {
+  color: rgb(249, 38, 114); || sets color of links */
+  text-decoration: none; /* turns off background coloring of links */
+}
+
+.title-slide {
+  background-color: #23373B;
+  border-top: 80px solid #23373B;
+}
+
+.title-slide h1  {
+  color: #FFFFFF;
+  font-size: 40px;
+  text-shadow: none;
+  font-weight: 400;
+  text-align: left;
+  margin-left: 15px;
+  padding-top: 80px;
+}
+
+.title-slide h2  {
+  margin-top: -25px;
+  padding-bottom: -20px;
+  color: #FFFFFF;
+  text-shadow: none;
+  font-weight: 300;
+  font-size: 35px;
+  text-align: left;
+  margin-left: 15px;
+}
+.title-slide h3  {
+  color: #FFFFFF;
+  text-shadow: none;
+  font-weight: 300;
+  font-size: 25px;
+  text-align: left;
+  margin-left: 15px;
+  margin-bottom: -30px;
+}
+
+hr, .title-slide h2::after, .mline h1::after {
+  content: '';
+  display: block;
+  border: none;
+  background-color: rgb(249, 38, 114);
+  color: rgb(249, 38, 114);
+  height: 2px;
+}
+
+h1 code, h2 code, h3 code, h4 code, h5 code {
+    background-color: #f5f5f5;  /* This is a light gray color. Modify as needed. */
+    color: #333;                /* This is almost black. Modify as desired. */
+    padding: 2px 5px;           /* Adjusts the padding around the inline code */
+}
+
+
+.pull-left {
+  padding-top: 0px;
+}
+
+.pull-left-narrow {
+  float: left;
+  width: 15%;
+  padding-bottom: 5px
+}
+
+.pull-right-wide {
+  float: right;
+  width: 85%;
+  padding-top: 0;
+  padding-bottom: 5px/* Set to 0 or any value you feel looks right */
+}
+
+.pull-right-wide-2{
+  float: right;
+  width: 85%;
+  padding-top: 30px;
+  padding-bottom: 0px/* Set to 0 or any value you feel looks right */
+}
+
+
+.column {
+  float: left;
+  width: 20%;
+  padding: 3px;
+  box-sizing: border-box; /* Include padding in the width calculation */
+}
+
+&lt;/style&gt;
+
+# Table of Contents
+
+.pull-left[
+**janitor**
+- Introduction to `janitor`
+- Cleaning Names with `clean_names()`
+- Tabulating Data with `tabyl()`
+- Hands-on with `janitor`: Public Innovation Lab in Mexico
+- Additional functionalities
+]
+
+.pull-right[
+**forcats**
+- Introduction to `forcats`
+- Overview of Key `forcats` Functions
+  - Inspect, Combine, and Modify Factors
+  - Change Order, Value, and Add/Drop Levels
+- Hands-on with `forcats`: A Small Example using `gss_cat`
+]
+
+---
+class: inverse, center, middle
+
+# Let's Get Started
+---
+
+# Overview
+
+`janitor` is a package built by Sam Firke. Its main functionalities include:
+1. Simple functions for **cleaning** and **examining** data
+2. It is specifically optimized for users, so its preferred audience are **beginners** and **intermediate** R coders. 
+3. **Advanced** R users can do data wrangling data faster.
+
+&gt; "Data scientists, according to interviews and expert estimates, spend from 50 percent to 80 percent of their time mired in this more mundane labor of collecting and preparing unruly digital data, before it can be explored for useful nuggets." - The New York Times
+
+### Main Use-Cases:
+#### Unstructured or raw data:
+
+- perfectly **format** data.frame column names; 
+- create and format **frequency tables of one, two, or three variables**; 
+- provide other tools for **cleaning and examining data frames**.
+---
+
+# Overview
+
+`janitor` is a **tidyverse-oriented package**. It plays nicely with the %&gt;% pipe and is optimized for cleaning data brought in with the `readr` and `readxl` packages.
+
+- It provides simple functions that can be used to quickly and effectively clean and manage data
+
+### Let's get started
+#### Step 1: Installing and loading library:
+
+
+```r
+# install.packages("janitor")
+library("janitor")
+```
+
+---
+
+# First Use-Case: Cleaning Data
+
+### Clean data frame names with `clean_names()`
+
+Datasets not always include clear and concise names for columns. Column names in a dataset should use lowercase letters, numbers, and underscores. Underscores areu sed to separate 
+words within a variable name.
+
+- Function to be used: `clean_names()`
+- This function can be used for piped dataframes workflows. 
+
+&gt; “Variable and function names should use only lowercase letters, numbers, and underscores. Use underscores (so called snake_case) to separate words within a name." -  [The tidyverse style guide](https://style.tidyverse.org/syntax.html)
+ 
+---
+
+#Some Examples
+
+### Spaces, caps, special characters in columns names:
+
+```r
+# We can create a test data frame with variable names that contain special characters, 
+# dots instead of "_" and Caps on. 
+
+dirty_data &lt;- as.data.frame(matrix(ncol = 5))
+names(dirty_data) &lt;- c("FIRST Name", "Last Name" ,"cl@33#***","CAPS", "scored.goals.season")
+clean_data &lt;- dirty_data %&gt;% 
+  clean_names()
+
+colnames(clean_data)
+```
+
+```
+## [1] "first_name"          "last_name"           "cl_33_number"       
+## [4] "caps"                "scored_goals_season"
+```
+---
+# `janitor` Demonstration
+
+### Using dataset from a public innovation lab in Mexico City
+
+By using a real-life dataset, we want to demonatrate the perks `janitor` has to offer. First we need to download [this dataset](https://datos.cdmx.gob.mx/dataset/interrupcion-legal-del-embarazo/resource/755e9b54-401d-40a6-8787-c45a8f97937e) from a Mexican public agency about legal pregnancy interruption from 2016 - 2018 (updated in 2023).
+
+
+```r
+# loading the dataset
+data &lt;- read.csv("ile_2016_2018.csv", stringsAsFactors = F, fileEncoding = "UTF-8")
+# don't forget to include the path to your WD when importing a dataset in the project space.
+# (colnames are in Spanish)
+
+names(data)[1:5]
+```
+
+```
+## [1] "anio"          "mes"           "fecha_ingreso" "referida"     
+## [5] "estado_civil"
+```
+
+```r
+data_clean_names &lt;-  clean_names(data)
+
+names(data_clean_names)[1:5]
+```
+
+```
+## [1] "anio"          "mes"           "fecha_ingreso" "referida"     
+## [5] "estado_civil"
+```
+
+---
+
+# Second Use Case: Using the `tabyl` function
+**This dataset is perfect for us to use the `tabyl` function to display neat tables on variables we want to analyze.**
+
+Why not using `table()`? 
+- we cannot using the pipe %&gt;% with this base R function 
+- `table()` doesn't give us data frames as outputs. (`tabyl` gives us a dataframe in tidy format consistent with tidyverse)
+- Only gives us one-dimensional variables, and `tabyl` provides automatic proportions and counts. 
+
+### Example 1: One-dimensional table
+
+
+```r
+# a one-dimensional table
+tabyl(data_clean_names$anio)
+```
+
+```
+##  data_clean_names$anio     n      percent
+##                   2015     1 1.947268e-05
+##                   2016 18038 3.512482e-01
+##                   2017 17597 3.426607e-01
+##                   2018 15718 3.060716e-01
+```
+---
+
+# Second Use Case: Using the `tabyl` function
+
+### Example 2: Two-way table
+
+```r
+table&lt;- data_clean_names %&gt;% 
+  tabyl(anio, estado_civil) %&gt;% 
+  drop_na(anio)
+print(table)
+```
+
+```
+##  anio Casada Divorciada Separada Soltera Unión libre Viuda NA_
+##  2015      0          0        1       0           0     0   0
+##  2016   2006        581      301    9741        5168    58 183
+##  2017   1950        420      267    9658        5045    55 202
+##  2018   1589        370      204    8880        4540    38  97
+```
+
+---
+
+# Second Use Case: Using the `tabyl` function
+
+### Now we recreate percentages
+Here, we have to do some additional coding the add the % in this two-way table. 
+
+
+```r
+#now with % on both tables
+table2 &lt;- data_clean_names %&gt;% 
+  tabyl(anio, estado_civil) %&gt;% 
+  adorn_totals("col") %&gt;%              #Total per row
+  adorn_percentages("row") %&gt;%         #percentage per row
+  adorn_pct_formatting(digits = 2) %&gt;% #rounded value
+  adorn_ns() %&gt;%                       #adding absolute numbers
+  adorn_title()                      #adds variable name
+
+head(table2)
+```
+
+```
+##         estado_civil                                                        
+##  anio         Casada  Divorciada      Separada        Soltera    Unión libre
+##  2015  0.00%     (0) 0.00%   (0) 100.00%   (1)  0.00%     (0)  0.00%     (0)
+##  2016 11.12% (2,006) 3.22% (581)   1.67% (301) 54.00% (9,741) 28.65% (5,168)
+##  2017 11.08% (1,950) 2.39% (420)   1.52% (267) 54.88% (9,658) 28.67% (5,045)
+##  2018 10.11% (1,589) 2.35% (370)   1.30% (204) 56.50% (8,880) 28.88% (4,540)
+##                                         
+##       Viuda         NA_            Total
+##  0.00%  (0) 0.00%   (0) 100.00%      (1)
+##  0.32% (58) 1.01% (183) 100.00% (18,038)
+##  0.31% (55) 1.15% (202) 100.00% (17,597)
+##  0.24% (38) 0.62%  (97) 100.00% (15,718)
+```
+
+---
+
+# Second Use Case: Using the `tabyl` function
+### With three variables
+As expected, oftentimes we need tables that can relate over two variables at once.
+Although, for this reason we need prettier design to relate the information easily. 
+
+For this reason, we can do the following: create a table with tabyl and 
+use adorn for prettier designs.
+
+#### Three-way `tabyl` 
+
+```r
+data_clean_names  %&gt;% 
+  tabyl(resultado_ile, recibio_consejeria, anio) %&gt;% 
+  adorn_percentages("all") %&gt;% 
+  adorn_pct_formatting(digits = 1) %&gt;%  
+  adorn_title() %&gt;% 
+  kable() %&gt;% 
+  kable_styling(font_size = 8.5)#To fit the table by reducing font size
+```
+
+&lt;table class="kable_wrapper table" style="font-size: 8.5px; margin-left: auto; margin-right: auto;"&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td&gt; 
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; recibio_consejeria &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; resultado_ile &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; No &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Si &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Completa &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Otro &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 100.0% &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+ &lt;/td&gt;
+   &lt;td&gt; 
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; recibio_consejeria &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; resultado_ile &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; No &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Si &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA_ &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Completa &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.1% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 34.1% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Otro &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2.6% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.5% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 59.0% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2.6% &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+ &lt;/td&gt;
+   &lt;td&gt; 
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; recibio_consejeria &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; resultado_ile &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; No &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Si &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA_ &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Completa &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Otro &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.8% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 96.0% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3.1% &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+ &lt;/td&gt;
+   &lt;td&gt; 
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; recibio_consejeria &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; resultado_ile &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; No &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Si &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA_ &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Completa &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.7% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 99.1% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.1% &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Otro &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.1% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.1% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0% &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+ &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+---
+# Additional Useful Functions 
+
+### Fixing dates
+.pull-left[
+For fixing dates we have the option to use janitor. 
+The `excel_numeric_to_date()` function solves the problem where in Excel dates are represented in numbers. 
+
+This function turns Excel's numeric format into R date format. 
+
+
+```r
+library(janitor)
+excel_date &lt;- 44197 # this means the number of days since a 
+#specific start date (january 1 1900 or january 1 1904 depending on the system). 
+r_date &lt;- excel_numeric_to_date(excel_date)
+print(r_date)
+```
+
+```
+## [1] "2021-01-01"
+```
+]
+.pull-right[
+We also have the `convert_to_date()` function which converts a mix of date and datetime formats to date.
+
+```r
+excel_dates &lt;- c(44197, 44228)  # Corresponding to 2021-01-01 and 2021-02-01
+r_dates &lt;- convert_to_date(excel_dates)
+print(r_dates)  # Outputs "2021-01-01" and "2021-02-01
+```
+
+```
+## [1] "2021-01-01" "2021-02-01"
+```
+]
+---
+# Additional Useful Functions 
+### Rounding numbers 
+
+
+This function "round_to_fraction" to round decimals to the nearest fraction. 
+WE don't use base R "round" function uses "bankers rounding" which means that halves are rounded to the nearest even number. 
+Example: 
+
+
+```r
+# Rounding to the nearest quarter que denominator = 4.
+round_to_fraction(0.37, 4)  
+```
+
+```
+## [1] 0.25
+```
+
+```r
+numbers&lt;- c(3.6,2.4) 
+round(numbers)
+```
+
+```
+## [1] 4 2
+```
+---
+# Additional Useful Functions  
+
+### Detecting duplicated records 
+In this case we use the `get_dupes()` function.  
+- Detects duplicate records when cleaning data in specific columns
+- The output includes a dataframe with the specified columns (or all), and 
+a column named `dupe_count` which has the number of times each value 
+appears in the dataset.
+
+.pull-left[
+
+```r
+#EXAMPLE: Create a sample dataframe
+df &lt;- data.frame(ID = c(1, 2, 3, 4, 2, 5),
+                 Name = c("Alice", "Bob", "Charlie", "David", "Bob", "Eve"))
+```
+]
+.pull-right[
+
+```r
+# Identify duplicates in the ID column
+get_dupes(df, ID)
+```
+
+```
+##   ID dupe_count Name
+## 1  2          2  Bob
+## 2  2          2  Bob
+```
+]
+.center[
+
+```r
+# Identify duplicates based on combinations of ID and Name
+get_dupes(df, ID, Name)
+```
+
+```
+##   ID Name dupe_count
+## 1  2  Bob          2
+## 2  2  Bob          2
+```
+]
+---
+# Further Useful Functions
+### Dealing with NAs
+
+- `remove_empty()`: Remove empty rows or columns from a dataframe.
+- `convert_to_na()`: Convert specific values in a dataframe to NAs.
+
+
+
+```r
+#sample data
+df &lt;- data.frame(
+  Name = c("Alice", "Bob", "Charlie", "David", "Eve", "Frank"),
+  Age = c(25, NA, 30, 32, NA, NA),
+  Gender = c("Female", "Male", "", "Male", "Female", ""),
+  Alt_Gender = c("", "", "Male", "", "", "Male"),
+  Comments = c("", "", "", "", "", ""))
+#remove empty 
+df_clean &lt;- df %&gt;% 
+  remove_empty(c("rows", "cols"))
+#convert_to_na()
+#df_clean &lt;- df_clean %&gt;% 
+ # convert_to_na(list(Gender = "", Alt_Gender = "", Name = ""))
+```
+
+---
+class: inverse, center, middle
+
+# Now let's introduce `forcats`
+
+---
+# Table of Contents
+
+.pull-left[
+**janitor**
+- Introduction to `janitor`
+- Cleaning Names with `clean_names()`
+- Tabulating Data with `tabyl()`
+- Hands-on with `janitor`: Public Innovation Lab in Mexico
+- Additional functionalities
+]
+
+.pull-right[
+**forcats**
+- Introduction to `forcats`
+- Overview of Key `forcats` Functions
+  - Inspect, Combine, and Modify Factors
+  - Change Order, Value, and Add/Drop Levels
+- Hands-on with `forcats`: A Small Example using `gss_cat`
+]
+
+---
+
+# Introduction to Factors
+
+Factors play an essential role when dealing with **categorical data** (variables that have a fixed and known set of possible values) in R.
+
+&gt; "A **factor** is an integer vector with a **levels** attribute that stores a set of mappings between integers and categorical values." - [Factors with forcats, RStudio](https://rstudio.github.io/cheatsheets/html/factors.html)
+
+Key points about factors:
+1. **Structured Representation**: Unlike character vectors, they don't need to follow alphabetical order.
+2. **Tidyverse Compatibility**: Factors seamlessly integrate into the tidyverse ecosystem.
+
+
+### Where could data scientists come across factors?
+#### Surveys and Questionnaires:
+
+- Questions with **multiple-choice** answers (e.g., "How satisfied are you with our service?" with responses: "Very Satisfied", "Satisfied", "Neutral", "Dissatisfied", "Very Dissatisfied").
+- **Demographic data** like gender (e.g., "Male", "Female", "Other", "Prefer not to say").
+---
+
+# Say Hello to `forcats`
+
+`forcats` is a member of the tidyverse family, dedicated to dealing with **categorical variables** in R.
+
+.pull-left-narrow[.center[
+  &lt;img src="https://forcats.tidyverse.org/logo.png" style="width:90px;"&gt;
+]]
+.pull-right-wide-2[
+**Name Origin**: "for" + "cats" - because it's for categorical variables ;-) 
+]
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+**Installation**: To install, simply run:
+
+```r
+install.packages("forcats")
+# Or
+install.packages("tidyverse")
+```
+
+**Key Functionalities**:
+- Inspecting factor levels
+- Changing order and value of levels
+- Combining and expanding factors
+- Handling missing values and unused levels
+
+---
+# Overview of (selected) `forcats` functions
+
+
+.column[
+**Inspect**
+&lt;br&gt;
+`fct_count()`
+`fct_unique()`
+]
+
+.column[
+**Combine**
+&lt;br&gt;
+`fct_c(...)`
+]
+
+.column[
+**Change Order**
+&lt;br&gt;
+`fct_relevel()`
+`fct_infreq()`
+`fct_reorder()`
+]
+
+.column[
+**Change Value(s)**
+&lt;br&gt;
+`fct_recode()`
+`fct_lump_min()`
+`fct_other()`
+]
+
+.column[
+**Add or Drop**
+&lt;br&gt;
+`fct_drop()`
+`fct_na_value_to_level()`
+]
+
+---
+
+# Inspect Factors
+
+.pull-left-narrow[
+  &lt;img src="img/fct_count.png" style="width:115px;"&gt;
+]
+.pull-right-wide[
+`fct_count(f, sort = FALSE, prop = FALSE)`  
+Count the number of values with each level.
+]
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+**Example**:
+
+```r
+f &lt;- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_count(f)
+```
+
+```
+## # A tibble: 3 × 2
+##   f          n
+##   &lt;fct&gt;  &lt;int&gt;
+## 1 apple      3
+## 2 banana     2
+## 3 cherry     1
+```
+
+---
+
+# Inspect Factors (cont.)
+
+.pull-left-narrow[
+  &lt;img src="img/fct_count.png" style="width:115px;"&gt;
+]
+.pull-right-wide[
+`fct_count(f, sort = FALSE, prop = FALSE)`  
+Count the number of values with each level.
+]
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+**Example**:
+
+```r
+fruits &lt;- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_count(fruits)
+```
+
+.pull-left-narrow[
+&lt;img src="img/fct_unique.png" style="width:125px;"&gt;
+]
+.pull-right-wide[
+`fct_unique(f)` 
+&lt;br&gt;
+Return the unique values, removing duplicates.
+]
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+**Example**:
+
+```r
+fct_unique(fruits)
+```
+
+```
+## [1] apple  banana cherry
+## Levels: apple banana cherry
+```
+---
+# Combine Factors
+
+.pull-left-narrow[
+  &lt;img src="img/fct_c.png" style="width:125px;"&gt;
+]
+.pull-right-wide[
+`fct_c(...)`  
+Combine factors with different levels.
+]
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+**Example**:
+
+```r
+f1 &lt;- factor(c("a", "c"))
+f2 &lt;- factor(c("b", "a"))
+fct_c(f1, f2)
+```
+
+```
+## [1] a c b a
+## Levels: a c b
+```
+---
+# Combine Factors (cont.)
+
+.pull-left-narrow[
+  &lt;img src="img/fct_c.png" style="width:125px;"&gt;
+]
+.pull-right-wide[
+`fct_c(...)`  
+Combine factors with different levels.
+]
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+**Example**:
+
+```r
+fct_c(f1, f2)
+```
+
+.pull-left-narrow[
+&lt;img src="img/fct_unify.png" style="width:120px;"&gt;
+]
+.pull-right-wide[
+`fct_unify(fs, levels = lvls_union(fs))`
+&lt;br&gt;
+Standardize levels across a list of factors.
+]
+
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+**Example**:
+
+```r
+fct_unify(list(f2, f1))
+```
+
+```
+## [[1]]
+## [1] b a
+## Levels: a b c
+## 
+## [[2]]
+## [1] a c
+## Levels: a b c
+```
+---
+
+# Change the Order of Levels
+
+.pull-left-narrow[
+  &lt;img src="img/fct_infreq.png" style="width:120px;"&gt;
+]
+.pull-right-wide[
+`fct_infreq(f, ordered = NA)` 
+&lt;br&gt;
+Reorder levels by the frequency in which they appear in the data (highest frequency first).
+]
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+**Example**:
+
+```r
+fruits &lt;- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_infreq(fruits)
+```
+
+```
+## [1] apple  banana apple  cherry banana apple 
+## Levels: apple banana cherry
+```
+
+---
+
+# Change the Order of Levels (cont.)
+
+.pull-left-narrow[
+  &lt;img src="img/fct_infreq.png" style="width:120px;"&gt;
+]
+.pull-right-wide[
+`fct_infreq(f, ordered = NA)` 
+&lt;br&gt;
+Reorder levels by the frequency in which they appear in the data (highest frequency first).
+]
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+**Example**:
+
+```r
+fruits &lt;- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_infreq(fruits)
+```
+
+.pull-left-narrow[
+&lt;img src="img/fct_inorder.png" style="width:120px;"&gt;
+]
+.pull-right-wide[
+`fct_inorder(f, ordered = NA)`
+&lt;br&gt;
+Reorder levels by the order in which they appear in the data.
+]
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+**Example**:
+
+```r
+fct_inorder(fruits)
+```
+
+```
+## [1] apple  banana apple  cherry banana apple 
+## Levels: apple banana cherry
+```
+---
+
+# Change the Value of Levels
+
+.pull-left-narrow[
+  &lt;img src="img/fct_recode.png" style="width:120px;"&gt;
+]
+.pull-right-wide[
+`fct_recode(f, ...)`  
+Manually change levels.
+]
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+**Example**:
+
+```r
+fruits &lt;- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_recode(fruits, cherry = "apple")
+```
+
+```
+## [1] cherry banana cherry cherry banana cherry
+## Levels: cherry banana
+```
+---
+
+# Change the Value of Levels (cont.)
+
+.pull-left-narrow[
+  &lt;img src="img/fct_recode.png" style="width:120px;"&gt;
+]
+.pull-right-wide[
+`fct_recode(f, ...)`  
+Manually change levels.
+]
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+**Example**:
+
+```r
+fruits &lt;- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_recode(fruits, cherry = "apple")
+```
+
+.pull-left-narrow[
+  &lt;img src="img/fct_other.png" style="width:120px;"&gt;
+]
+.pull-right-wide[
+`fct_other(f, keep, drop, other_level = "Other")`  
+Replace all levels not in `keep` with the value of `other`.
+]
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+**Example**:
+
+```r
+fct_other(f, keep = c("banana", "cherry"))
+```
+
+```
+## [1] Other  banana Other  cherry banana Other 
+## Levels: banana cherry Other
+```
+---
+# Add or Drop Levels
+
+.pull-left-narrow[
+  &lt;img src="img/fct_drop.png" style="width:120px;"&gt;
+]
+.pull-right-wide[
+`fct_drop(f)`  
+Drop unused levels from a factor.
+]
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+**Example**:
+
+```r
+vehicles &lt;- factor(c("car", "bike", "bus"), 
+                   levels = c("car", "bike", "bus", "train"))
+# "train" is an unused level
+fct_drop(vehicles)
+```
+
+```
+## [1] car  bike bus 
+## Levels: car bike bus
+```
+---
+# Add or Drop Levels (cont.)
+
+.pull-left-narrow[
+  &lt;img src="img/fct_drop.png" style="width:120px;"&gt;
+]
+.pull-right-wide[
+`fct_drop(f)`  
+Drop unused levels from a factor.
+]
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+**Example**:
+
+```r
+fct_drop(vehicles)
+```
+
+.pull-left-narrow[
+&lt;img src="img/fct_explicit_na.png" style="width:120px;"&gt;
+]
+.pull-right-wide[
+`fct_na_value_to_level(f, level = "(Missing)")`
+&lt;br&gt;
+Convert NA to a specified level in a factor.
+]
+
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
+**Example**:
+
+```r
+vehicles_with_na &lt;- factor(c("car", "bike", NA, "bus", NA, "car"), 
+                           levels = c("car", "bike", "bus", "train"))
+# Convert NA values to "train"
+fct_na_value_to_level(vehicles_with_na, level = "train")
+```
+
+```
+## [1] car   bike  train bus   train car  
+## Levels: car bike bus train
+```
+
+---
+# Application
+
+### Aggregating factor levels in `gss_cat` data
+
+The `gss_cat` dataset provides a sample from the General Social Survey, a US survey by the NORC at the University of Chicago.
+
+
+```r
+library(tidyverse)
+head(gss_cat)
+```
+
+```
+# # A tibble: 6 × 9
+#    year marital         age race  rincome        partyid     relig denom tvhours
+#   &lt;int&gt; &lt;fct&gt;         &lt;int&gt; &lt;fct&gt; &lt;fct&gt;          &lt;fct&gt;       &lt;fct&gt; &lt;fct&gt;   &lt;int&gt;
+# 1  2000 Never married    26 White $8000 to 9999  Ind,near r… Prot… Sout…      12
+# 2  2000 Divorced         48 White $8000 to 9999  Not str re… Prot… Bapt…      NA
+# 3  2000 Widowed          67 White Not applicable Independent Prot… No d…       2
+# 4  2000 Never married    39 White Not applicable Ind,near r… Orth… Not …       4
+# 5  2000 Divorced         25 White Not applicable Not str de… None  Not …       1
+# 6  2000 Married          25 White $20000 - 24999 Strong dem… Prot… Sout…      NA
+```
+---
+# Application (cont.)
+
+### Aggregating factor levels in `gss_cat` data
+
+The `gss_cat` dataset provides a sample from the General Social Survey, a US survey by the NORC at the University of Chicago.
+
+
+```r
+relig_counts &lt;- fct_count(gss_cat$relig)
+head(relig_counts, 10)
+```
+
+```
+# # A tibble: 10 × 2
+#    f                           n
+#    &lt;fct&gt;                   &lt;int&gt;
+#  1 No answer                  93
+#  2 Don't know                 15
+#  3 Inter-nondenominational   109
+#  4 Native american            23
+#  5 Christian                 689
+#  6 Orthodox-christian         95
+#  7 Moslem/islam              104
+#  8 Other eastern              32
+#  9 Hinduism                   71
+# 10 Buddhism                  147
+```
+---
+
+# Application (cont.)
+
+### Aggregating factor levels in `gss_cat` data
+
+The `gss_cat` dataset provides a sample from the General Social Survey, a US survey by the NORC at the University of Chicago.
+
+--
+
+To simplify plots or tables, we often lump together the small groups of a factor. The `fct_lump_n()` function from the `forcats` package serves this purpose by grouping the smallest categories into "Other".
+
+
+```r
+library(forcats)
+library(dplyr)
+
+gss_cat %&gt;%
+  mutate(relig = fct_lump_n(relig, n = 4)) %&gt;%
+  count(relig) %&gt;%
+  filter(!relig == "None") %&gt;%
+  arrange(desc(n))
+```
+
+```
+## # A tibble: 4 × 2
+##   relig          n
+##   &lt;fct&gt;      &lt;int&gt;
+## 1 Protestant 10846
+## 2 Catholic    5124
+## 3 Other       1301
+## 4 Christian    689
+```
+In this code:
+
+- `fct_lump_n(relig, n = 3)` will keep the top 3 most frequent religions and lump the rest into the "Other" category.
+- `filter(!relig == "None")` will remove the "None" category from the output.
+- `arrange(desc(n))` arranges the levels in descending order.
+---
+
+# Application (cont.)
+
+### Aggregating factor levels in `gss_cat` data
+
+The `gss_cat` dataset provides a sample from the General Social Survey, a US survey by the NORC at the University of Chicago.
+
+To simplify plots or tables, we often lump together the small groups of a factor. The `fct_lump_n()` function from the `forcats` package serves this purpose by grouping the smallest categories into "Other".
+
+
+```r
+library(forcats)
+library(dplyr)
+
+gss_cat %&gt;%
+  mutate(relig = fct_lump_n(relig, n = 4)) %&gt;%
+  count(relig) %&gt;%
+  filter(!relig == "None") %&gt;%
+  arrange(desc(n))
+```
+In this code:
+
+- `fct_lump_n(relig, n = 4)` will keep the top 4 most frequent religions and lump the rest into the "Other" category.
+- `filter(!relig == "None")` will remove the "None" category from the output.
+- `arrange(desc(n))` arranges the levels in descending order.
+---
+class: inverse, center, middle
+
+# Thank you for watching!
+
+---
+class: inverse, center, middle
+
+# Ready to become an expert in `janitor` and `forcats`?
+
+Scan the QR code below join the quiz:
+
+&lt;img src="img/mentimeter_qr_code.png" width="250"&gt;
+
+
+Or go to **menti.com** and enter the code **49 85 53 3**
+
+---
+
+# Resources
+
+.pull-left[
+#### `janitor`
+- [Package janitor documentation](https://cran.r-project.org/web/packages/janitor/janitor.pdf)
+- [GitHub Repository](https://github.com/sfirke/janitor)
+   
+**For original material on the** `janitor` **package**
+
+- [Package janitor documentation](https://cran.r-project.org/web/packages/janitor/janitor.pdf)
+- [GitHub Repository](https://github.com/sfirke/janitor)
+
+**Additional Resources** 
+
+- [Cleaning and Exploring Data with the “janitor”](https://towardsdatascience.com/cleaning-and-exploring-data-with-the-janitor-package-ee4a3edf085e) 
+- [RDocumentation - Janitor](https://www.rdocumentation.org/packages/janitor/versions/2.2.0r)
+- [Tabyl: frequency tables for R users](https://towardsdatascience.com/tabyl-a-frequency-table-for-the-modern-r-user-e061cd48baef)
+]
+
+.pull-right[
+#### `forcats`
+- [Official R Documentation](https://forcats.tidyverse.org/) (including all sublinks)
+- Wickham, H., &amp; Grolemund, G. (2017). Factors. In R for Data Science (1st ed.). O’Reilly Media, Inc. https://r4ds.had.co.nz/factors.html
+- Wickham, H., &amp; Grolemund, G. (2023). Factors. In R for Data Science (2nd ed.). O’Reilly Media, Inc. https://r4ds.hadley.nz/factors.html
+- McNamara A, Horton NJ. 2017. Wrangling categorical data in R. PeerJ Preprints 5:e3163v2 https://doi.org/10.7287/peerj.preprints.3163v2
+
+**Additional Resources**
+&lt;br&gt;
+[`forcats` cheatsheet](https://rstudio.github.io/cheatsheets/factors.pdf)
+]
+
+
+
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9",
+"hash": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
