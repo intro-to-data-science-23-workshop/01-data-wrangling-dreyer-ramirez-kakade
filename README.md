@@ -45,6 +45,10 @@ The goals of this session are to:
 - [Tabyl: frequency tables for R users](https://towardsdatascience.com/tabyl-a-frequency-table-for-the-modern-r-user-e061cd48baef)
 - ['forcats' cheatsheet](https://rstudio.github.io/cheatsheets/factors.pdf) *Credits to the nice images!*
 
+## Quiz and practice materials
+- Click [here](https://www.menti.com/al7p2pkdh4b3) to take our quiz to test your knowledge about the `forcats` package!
+- Have a look at our practice materials and try out `janitor` to wrangle untidy data
+
 ## License
 
 The material in this repository is made available under the [MIT license](http://opensource.org/licenses/mit-license.php). 
