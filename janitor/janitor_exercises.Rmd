@@ -44,8 +44,13 @@ Exercise 2 Dealing with NAs.
 Exercise 3: Creating a twoway and threeway table with tabyl and Kable. 
 #considering the variables of interest, create a threeway table to relate variables and draw some preliminary conclusions. 
 
-Exercise 4: 
+Exercise 4: Wrap-up
+To practice, create a sample dataframe with purposely show messy data with the following columns: age, names, gender, alternative gender, comments, and salary. 
 
+4.1 Clean names
+4.2 convert placeholders to NA
+4.3 Fill in Na values in the "gender" column using "alt_gender". 
+4.4 Remove empty columns 
 
 
 

@@ -68,3 +68,23 @@ data  %>%
   adorn_title() %>% 
   kable() %>% 
   kable_styling(font_size = 8.5)
+
+Exercise 4: Wrap-up 
+4.1 
+# Sample dataframe with messy data
+df <- data.frame(
+  'First Name' = c("Alice", "Bob", "Charlie", "David", "Eve", "Frank"),
+  'Age ' = c(25, NA, 30, 32, NA, NA),
+  'Gender ' = c("Female", "Male", "", "Male", "Female", ""),
+  'Alt.Gender' = c("", "", "Male", "", "", "Male"),
+  'Comments ' = c("", "", "", "", "", ""),
+  'Salary($)' = c(50000, 55000, 60000, 65000, 70000, 75000),
+  stringsAsFactors = FALSE
+)
+
+4.2 df <- df %>% convert_to_na(list(gender = "", alt_gender = ""))
+
+4.3 df <- df %>% use_first_valid_of(gender, alt_gender)
+
+4.4 df <- df %>% remove_empty("cols")
+
