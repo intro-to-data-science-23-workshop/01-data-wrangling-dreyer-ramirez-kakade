@@ -401,49 +401,15 @@ df_clean <- df %>%
 ```
 
 ---
-# Resources
+#Resources
 
-####For original material on the `Janitor` package
+###For original material on the `Janitor` package
 
 - [Package janitor documentation](https://cran.r-project.org/web/packages/janitor/janitor.pdf)
 - [GitHub Repository](https://github.com/sfirke/janitor)
 
-####Additional Resources: 
+###Additional Resources: 
 
----
-# `janitor` Demonstration
-
-### Using dataset from a public innovation lab in Mexico City
-
-By using a real-life dataset
-
-```{r}
-#Using the a real-life dataset 
-#download this dataset from a mexican public agency about legal pregnancy interruption 
-#from 2016 - 2018 updated in 2023. URL:
-#https://datos.cdmx.gob.mx/dataset/interrupcion-legal-del-embarazo/resource/755e9b54-401d-40a6-8787-c45a8f97937e
-
-data <- read.csv("ile_2016_2018.csv", stringsAsFactors = F, fileEncoding = "UTF-8")
-#don't forget to include the path to your WD when importing a dataset in the project space. (colnames are in spanish)
-
-names(data)[1:5]
-
-data_clean_names <-  clean_names(data)
-
-names(data_clean_names)[1:5]
-
-```
-
----
-
-
-
-
-
-
-
-
-
-
-
-
+- [Cleaning and Exploring Data with the “janitor”](https://towardsdatascience.com/cleaning-and-exploring-data-with-the-janitor-package-ee4a3edf085e) 
+- [RDocumentation - Janitor](https://www.rdocumentation.org/packages/janitor/versions/2.2.0r)
+- [Tabyl: frequency tables for R users](https://towardsdatascience.com/tabyl-a-frequency-table-for-the-modern-r-user-e061cd48baef)

@@ -189,7 +189,7 @@ library("janitor")
 ### Clean data frame names with `clean_names()`
 
 Datasets not always include clear and concise names for columns. Column names in a dataset should use lowercase letters, numbers, and underscores. Underscores areu sed to separate 
-words within a variable name
+words within a variable name.
 
 - Function to be used: `clean_names()`
 - This function can be used for piped dataframes workflows. 
@@ -521,7 +521,7 @@ data_clean_names  %&gt;%
 
 ### Fixing dates
 .pull-left[
-For fixing dates a common error with excel dates we have the option to use janitor. 
+For fixing dates we have the option to use janitor. 
 The `excel_numeric_to_date()` function solves the problem where in Excel dates are represented in numbers. 
 
 This function turns Excel's numeric format into R date format. 
