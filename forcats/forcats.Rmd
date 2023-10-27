@@ -34,6 +34,62 @@ style_mono_accent(
 ```{css, echo=FALSE}
 /*.columns { display: flex; }*/
 
+a, a > code {
+  color: rgb(249, 38, 114); || sets color of links */
+  text-decoration: none; /* turns off background coloring of links */
+}
+
+.title-slide {
+  background-color: #23373B;
+  border-top: 80px solid #23373B;
+}
+
+.title-slide h1  {
+  color: #FFFFFF;
+  font-size: 40px;
+  text-shadow: none;
+  font-weight: 400;
+  text-align: left;
+  margin-left: 15px;
+  padding-top: 80px;
+}
+
+.title-slide h2  {
+  margin-top: -25px;
+  padding-bottom: -20px;
+  color: #FFFFFF;
+  text-shadow: none;
+  font-weight: 300;
+  font-size: 35px;
+  text-align: left;
+  margin-left: 15px;
+}
+.title-slide h3  {
+  color: #FFFFFF;
+  text-shadow: none;
+  font-weight: 300;
+  font-size: 25px;
+  text-align: left;
+  margin-left: 15px;
+  margin-bottom: -30px;
+}
+
+hr, .title-slide h2::after, .mline h1::after {
+  content: '';
+  display: block;
+  border: none;
+  background-color: rgb(249, 38, 114);
+  color: rgb(249, 38, 114);
+  height: 2px;
+}
+
+h1 code, h2 code, h3 code, h4 code, h5 code {
+    background-color: #f5f5f5;  /* This is a light gray color. Modify as needed. */
+    color: #333;                /* This is almost black. Modify as desired. */
+    padding: 2px 5px;           /* Adjusts the padding around the inline code */
+}
+
+
 .pull-left {
   padding-top: 0px;
 }
@@ -413,10 +469,10 @@ Drop unused levels from a factor.
 
 **Example**:
 ```{r}
-colors <- factor(c("Red", "Blue", "Green"), 
-                 levels = c("Red", "Blue", "Green", "Yellow"))
-# Yellow is an unused level
-fct_drop(colors)
+vehicles <- factor(c("car", "bike", "bus"), 
+                   levels = c("car", "bike", "bus", "train"))
+# Train is an unused level
+fct_drop(vehicles)
 ```
 ---
 # Add or Drop Levels (cont.)
@@ -432,7 +488,7 @@ Drop unused levels from a factor.
 
 **Example**:
 ```{r, results = 'hide'}
-fct_drop(colors)
+fct_drop(vehicles)
 ```
 
 .pull-left-narrow[
@@ -449,26 +505,51 @@ Convert NA to a specified level in a factor.
 <div style="clear:both;"></div>
 **Example**:
 ```{r}
-colors_with_na <- factor(c("Red", "Blue", NA, "Green"))
-fct_na_value_to_level(colors_with_na)
+vehicles_with_na <- factor(c("car", "bike", NA, "bus", NA, "car"), 
+                           levels = c("car", "bike", "bus", "train"))
+# Convert NA values to "train"
+fct_na_value_to_level(vehicles_with_na, level = "train")
 ```
 
-
 ---
-
 # Application
-For the rest of this chapter, we’re going to focus on `forcats::gss_cat`. It’s a sample of data from the General Social Survey, which is a long-running US survey conducted by the independent research organization NORC at the University of Chicago. The survey has thousands of questions, so in `gss_cat` I’ve selected a handful that will illustrate some common challenges you’ll encounter when working with factors.
+
+## Lumping Factor Levels in `gss_cat` Data
+
+The `gss_cat` dataset provides a sample from the General Social Survey, a US survey by the NORC at the University of Chicago.
 
 ```{r comment='#'}
 library(tidyverse)
 head(gss_cat)
-# fct_count(gss_cat$relig)
-# fct_count(fct_lump(gss_cat$relig))
 ```
+---
+# Application
 
+## Lumping Factor Levels in `gss_cat` Data
+
+The `gss_cat` dataset provides a sample from the General Social Survey, a US survey by the NORC at the University of Chicago.
+
+```{r comment='#'}
+fct_count(gss_cat$relig)
+```
 ---
 
-# A small example 
+# Application (cont.)
+
+## Lumping Factor Levels in `gss_cat` Data
+
+The `gss_cat` dataset provides a sample from the General Social Survey, a US survey by the NORC at the University of Chicago.
+
+To simplify plots or tables, we often lump together the small groups of a factor. The `fct_lump_lowfreq()` function from the `forcats` package serves this purpose by grouping the smallest categories into "Other".
+
+```{r}
+library(forcats)
+library(dplyr)
+
+gss_cat %>%
+  mutate(relig = fct_lump_lowfreq(relig)) %>%
+  count(relig)
+```
 
 ---
 
