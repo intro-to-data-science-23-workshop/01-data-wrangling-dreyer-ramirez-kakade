@@ -1,0 +1,35 @@
+---
+title: "Introduction to Data Science - Workshop Edition"
+subtitle: "Cleaning and wrangling data with `janitor` and `forcats`"
+author: "Luis Fernando Ramirez, Elena Dreyer and Shruti Kakade"
+institute: "Hertie School | [GRAD-C11/E1339](https://github.com/intro-to-data-science-23/workshop-presentations)" #"`r format(Sys.time(), '%d %B %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Welcome to Janitor! 
+In this crash course, we will learn how to clean data in R using a library called Janitor. 
+
+```{r, message = F}
+#Preparing the libraries
+library(readr)
+library(tidyverse)
+library(janitor)
+library(kableExtra)
+```
+By using a real-life dataset, we want to demonstrate the perks `janitor` has to offer. First we need to download [this dataset](https://datos.cdmx.gob.mx/dataset/interrupcion-legal-del-embarazo/resource/755e9b54-401d-40a6-8787-c45a8f97937e) from a Mexican public agency about legal pregnancy interruption from 2016 - 2018 (updated in 2023).
+
+```{r}
+# loading the dataset
+data <- read.csv("ile_2016_2018.csv", stringsAsFactors = F, fileEncoding = "UTF-8")
+
+#Now, create the code to check if the column names are correctly done or not. 
+Solution: glimpse(data)
+#to check if names are clean and correcting them. 
+data_clean_names <-  clean_names(data)
+#displaying 
+names(data_clean_names)[1:5]
+
