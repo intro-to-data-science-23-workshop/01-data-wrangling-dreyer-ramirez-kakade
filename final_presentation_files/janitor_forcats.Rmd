@@ -892,15 +892,14 @@ Or go to **menti.com** and enter the code **49 85 53 3**
 .pull-right[
 #### `forcats`
 - [Official R Documentation](https://forcats.tidyverse.org/) (including all sublinks)
+- [Another R Documentation](https://forcats.tidyverse.org/articles/forcats.html)
 - Wickham, H., & Grolemund, G. (2017). Factors. In R for Data Science (1st ed.). O’Reilly Media, Inc. https://r4ds.had.co.nz/factors.html
 - Wickham, H., & Grolemund, G. (2023). Factors. In R for Data Science (2nd ed.). O’Reilly Media, Inc. https://r4ds.hadley.nz/factors.html
 - McNamara A, Horton NJ. 2017. Wrangling categorical data in R. PeerJ Preprints 5:e3163v2 https://doi.org/10.7287/peerj.preprints.3163v2
 
 **Additional Resources**
 <br>
-[`forcats` cheatsheet](https://rstudio.github.io/cheatsheets/factors.pdf) 
-<br>
-*Credits to the nice images!*
+[`forcats` cheatsheet](https://rstudio.github.io/cheatsheets/factors.pdf) *Credits to the nice images!*
 ]
 
 
