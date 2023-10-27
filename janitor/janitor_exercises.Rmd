@@ -28,8 +28,26 @@ data <- read.csv("ile_2016_2018.csv", stringsAsFactors = F, fileEncoding = "UTF-
 
 #Now, create the code to check if the column names are correctly done or not. 
 
-#Now
+#Now, correct the names of the columns using janitor. 
 
 ```
+
+Exercise 2 Dealing with NAs.
+
+```{r}
+#In this part of the exercise, it'd be ideal to learn how to deal with NAs.
+#Check the following variables and establish a path to deal with NAs. 
+#Variables: numero_hijos, uso_anticonceptivo, resultado_ile. 
+#For each variable check the amount of NAs, placeholders, and how to deal with them.    
+
+```
+Exercise 3: Creating a twoway and threeway table with tabyl and Kable. 
+#considering the variables of interest, create a threeway table to relate variables and draw some preliminary conclusions. 
+
+Exercise 4: 
+
+
+
+
 
 

@@ -32,4 +32,39 @@ Solution: glimpse(data)
 data_clean_names <-  clean_names(data)
 #displaying 
 names(data_clean_names)[1:5]
+```
+Exercise 2 
 
+#dealing with NAs. 
+
+data |> tabyl(numero_hijos) #to check for Nas. 
+
+data |> tabyl(uso_anticonceptivo)
+data |> tabyl(uso_anticonceptivo)
+data |> tabyl(resultado_ile)
+
+#check for placeholders
+
+data<- data |> convert_to_na(list(numero_hijos = c(-999, ""), uso_anticonceptivo = "-999"))
+
+
+Exercise 3 
+
+Twoway table: 
+table2 <- data_clean_names %>% 
+  tabyl(anio, estado_civil) %>% 
+  adorn_totals("col") %>%              
+  adorn_percentages("row") %>%         
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>%                      
+  adorn_title()
+
+
+Threeway table: 
+data  %>% 
+  tabyl(resultado_ile, uso_anticonceptivo, anio) %>% 
+  adorn_percentages("all") %>% 
+  adorn_pct_formatting(digits = 1) %>%  
+  adorn_title() %>% 
+  kable() %>% 
+  kable_styling(font_size = 8.5)
