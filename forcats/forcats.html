@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Introduction to Data Science</title>
+    <title>Introduction to Data Science - Workshop Edition</title>
     <meta charset="utf-8" />
     <meta name="author" content="Elena Dreyer" />
     <script src="libs/header-attrs/header-attrs.js"></script>
@@ -30,7 +30,7 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# Introduction to Data Science
+# Introduction to Data Science - Workshop Edition
 ]
 .subtitle[
 ## Data Wrangling with <code>forcats</code>
@@ -70,19 +70,39 @@ class: center, middle, inverse, title-slide
   padding-bottom: 5px/* Set to 0 or any value you feel looks right */
 }
 
+.pull-right-wide-2{
+  float: right;
+  width: 85%;
+  padding-top: 30px;
+  padding-bottom: 0px/* Set to 0 or any value you feel looks right */
+}
+
+
 .column {
   float: left;
   width: 20%;
-  padding: 5px;
+  padding: 3px;
+  box-sizing: border-box; /* Include padding in the width calculation */
 }
 
-.forcats-overview .column {
-  float: left;
-  width: 19%;
-  padding: 1% 1%;
-  box-sizing: border-box;  /* to ensure padding is included in width */
-}
 &lt;/style&gt;
+
+# Table of contents
+
+&lt;br&gt;
+
+1. [Why databases?](#whydb)
+
+2. [Relational database fundamentals](#relationaldb)
+
+3. [Back to `dplyr`: joins](#joins)
+
+4. [SQL](#sql)
+
+5. [Talking to databases with R](#dbr)
+
+7. [Summary](#summary)
+
 ---
 class: inverse, center, middle
 
@@ -91,14 +111,15 @@ class: inverse, center, middle
 
 # Introduction to Factors
 
-Factors in R are utilized for **categorical variables** - variables with a known set of possible values. They:
-1. Represent character vectors in non-alphabetical order.
-2. Historically simplified working with characters.
-3. Are helpful in tidyverse, avoiding automatic character-to-factor conversions.
+Factors play a pivotal role when dealing with **categorical data** (variables that have a fixed and known set of possible values) in R. Key points about factors:
 
-&gt; "In R, factors are used to work with categorical variables, variables that have a fixed and known set of possible values." - Source
+1. **Structured Representation**: Unlike character vectors, they don't need to follow alphabetical order.
+2. **Tidyverse Compatibility**: Factors seamlessly integrate into the tidyverse ecosystem.
 
-### Where could data scientists collide with factors?
+
+&gt; "A **factor** is an integer vector with a **levels** attribute that stores a set of mappings between integers and categorical values." 
+
+### Where could data scientists come across factors?
 #### Surveys and Questionnaires:
 
 - Questions with **multiple-choice** answers (e.g., "How satisfied are you with our service?" with responses: "Very Satisfied", "Satisfied", "Neutral", "Dissatisfied", "Very Dissatisfied").
@@ -108,83 +129,97 @@ Factors in R are utilized for **categorical variables** - variables with a known
 # Creating and Working with Factors
 
 **Issues with String Variables**:
-- Limited valid values (e.g., months)
-- Doesn't prevent typos or sort usefully.
+- They have constrained valid values (e.g., months of the year).
+- They're prone to inconsistencies and don't have meaningful sorting.
 
 **Solution** - Use Factors!
 
 ```r
-# Example of creating a factor:
-x1 &lt;- c("Dec", "Apr", "Jan", "Mar")
-month_levels &lt;- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-y1 &lt;- factor(x1, levels = month_levels)
+# Turning string into a factor:
+months_vector &lt;- c("Dec", "Apr", "Jan", "Mar")
+month_levels &lt;- month.name  # R's built-in constant for month names
+ordered_months &lt;- factor(months_vector, levels = month_levels)
 ```
 
-**Benefits**:
-1. Values not in the set become `NA`.
-2. Sorts meaningfully.
-3. Can set order of levels based on appearance in data using `fct_inorder()`.
+**Perks** of Using Factors:
 
-&gt; "To create a factor you must start by creating a list of the valid levels." - Source
-
----
-
-class: .forcats-overview
-# Overview of `forcats` Functions
-
-1. **Inspect Factors**
-   - `fct_count()`
-   - `fct_unique()`
-
-2. **Combine Factors**
-   - `fct_c(...)`
-
-3. **Change the Order of Levels**
-   - `fct_relevel()`
-   - `fct_infreq()`
-   - `fct_reorder()`
-
-4. **Change the Value of Levels**
-   - `fct_recode()`
-   - `fct_lump_min()`
-   - `fct_other()`
-
-5. **Add or Drop Levels**
-   - `fct_drop()`
-   - `fct_na_value_to_level()`
+- Restricts values to a predefined set; others become NA.
+- Provides intuitive sorting.
+- Ordering based on data appearance is a breeze with `fct_inorder()` (see later).
 
 ---
-# Overview of `forcats` Functions
+# Say Hello to `forcats`
 
-.pull-left[
-1. **Inspect Factors**
-   - `fct_count()`
-   - `fct_unique()`
+`forcats` is a member of the tidyverse family, dedicated to dealing with **categorical variables** in R.
 
-2. **Combine Factors**
-   - `fct_c(...)`
-
-3. **Change the Order of Levels**
-   - `fct_relevel()`
-   - `fct_infreq()`
-   - `fct_reorder()`
+.pull-left-narrow[.center[
+  &lt;img src="https://forcats.tidyverse.org/logo.png" style="width:90px;"&gt;
+]]
+.pull-right-wide-2[
+**Name Origin**: "for" + "cats" - because it's for categorical variables ;-) 
 ]
-.pull-right[
-4. **Change the Value of Levels**
-   - `fct_recode()`
-   - `fct_lump_min()`
-   - `fct_other()`
+&lt;div style="clear:both;"&gt;&lt;/div&gt;
 
-5. **Add or Drop Levels**
-   - `fct_drop()`
-   - `fct_na_value_to_level()`
+**Installation**: To install, simply run:
+
+```r
+install.packages("forcats")
+# Or
+install.packages("tidyverse")
+```
+
+**Key Functionalities**:
+- Inspecting factor level.
+- Changing order and value of levels
+- Combining and expanding factors
+- Handling missing values and unused levels
+
+---
+# Overview of (selected) `forcats` Functions
+
+
+.column[
+**Inspect**
+&lt;br&gt;
+`fct_count()`
+`fct_unique()`
 ]
+
+.column[
+**Combine**
+&lt;br&gt;
+`fct_c(...)`
+]
+
+.column[
+**Change Order**
+&lt;br&gt;
+`fct_relevel()`
+`fct_infreq()`
+`fct_reorder()`
+]
+
+.column[
+**Change Value(s)**
+&lt;br&gt;
+`fct_recode()`
+`fct_lump_min()`
+`fct_other()`
+]
+
+.column[
+**Add or Drop**
+&lt;br&gt;
+`fct_drop()`
+`fct_na_value_to_level()`
+]
+
 ---
 
 # Inspect Factors
 
 .pull-left-narrow[
-  &lt;img src="img/fct_count.png" style="width:105px;"&gt;
+  &lt;img src="img/fct_count.png" style="width:115px;"&gt;
 ]
 .pull-right-wide[
 `fct_count(f, sort = FALSE, prop = FALSE)`  
@@ -207,12 +242,13 @@ fct_count(f)
 ## 2 banana     2
 ## 3 cherry     1
 ```
+
 ---
 
-# Inspect Factors
+# Inspect Factors (cont.)
 
 .pull-left-narrow[
-  &lt;img src="img/fct_count.png" style="width:105px;"&gt;
+  &lt;img src="img/fct_count.png" style="width:115px;"&gt;
 ]
 .pull-right-wide[
 `fct_count(f, sort = FALSE, prop = FALSE)`  
@@ -223,12 +259,12 @@ Count the number of values with each level.
 **Example**:
 
 ```r
-f &lt;- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
-fct_count(f)
+fruits &lt;- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_count(fruits)
 ```
 
 .pull-left-narrow[
-&lt;img src="img/fct_unique.png" style="width:105px;"&gt;
+&lt;img src="img/fct_unique.png" style="width:125px;"&gt;
 ]
 .pull-right-wide[
 `fct_unique(f)` 
@@ -240,7 +276,7 @@ Return the unique values, removing duplicates.
 **Example**:
 
 ```r
-fct_unique(f)
+fct_unique(fruits)
 ```
 
 ```
@@ -251,7 +287,7 @@ fct_unique(f)
 # Combine Factors
 
 .pull-left-narrow[
-  &lt;img src="img/fct_c.png" style="width:110px;"&gt;
+  &lt;img src="img/fct_c.png" style="width:125px;"&gt;
 ]
 .pull-right-wide[
 `fct_c(...)`  
@@ -272,10 +308,10 @@ fct_c(f1, f2)
 ## Levels: a c b
 ```
 ---
-# Combine Factors
+# Combine Factors (cont.)
 
 .pull-left-narrow[
-  &lt;img src="img/fct_c.png" style="width:110px;"&gt;
+  &lt;img src="img/fct_c.png" style="width:125px;"&gt;
 ]
 .pull-right-wide[
 `fct_c(...)`  
@@ -290,7 +326,7 @@ fct_c(f1, f2)
 ```
 
 .pull-left-narrow[
-&lt;img src="img/fct_unify.png" style="width:100px;"&gt;
+&lt;img src="img/fct_unify.png" style="width:120px;"&gt;
 ]
 .pull-right-wide[
 `fct_unify(fs, levels = lvls_union(fs))`
@@ -319,7 +355,7 @@ fct_unify(list(f2, f1))
 # Change the Order of Levels
 
 .pull-left-narrow[
-  &lt;img src="img/fct_infreq.png" style="width:105px;"&gt;
+  &lt;img src="img/fct_infreq.png" style="width:120px;"&gt;
 ]
 .pull-right-wide[
 `fct_infreq(f, ordered = NA)` 
@@ -331,7 +367,8 @@ Reorder levels by the frequency in which they appear in the data (highest freque
 **Example**:
 
 ```r
-fct_infreq(f)
+fruits &lt;- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_infreq(fruits)
 ```
 
 ```
@@ -341,10 +378,10 @@ fct_infreq(f)
 
 ---
 
-# Change the Order of Levels
+# Change the Order of Levels (cont.)
 
 .pull-left-narrow[
-  &lt;img src="img/fct_infreq.png" style="width:105px;"&gt;
+  &lt;img src="img/fct_infreq.png" style="width:120px;"&gt;
 ]
 .pull-right-wide[
 `fct_infreq(f, ordered = NA)` 
@@ -356,11 +393,12 @@ Reorder levels by the frequency in which they appear in the data (highest freque
 **Example**:
 
 ```r
-fct_infreq(f)
+fruits &lt;- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_infreq(fruits)
 ```
 
 .pull-left-narrow[
-&lt;img src="img/fct_inorder.png" style="width:105px;"&gt;
+&lt;img src="img/fct_inorder.png" style="width:120px;"&gt;
 ]
 .pull-right-wide[
 `fct_inorder(f, ordered = NA)`
@@ -372,7 +410,7 @@ Reorder levels by the order in which they appear in the data.
 **Example**:
 
 ```r
-fct_inorder(f)
+fct_inorder(fruits)
 ```
 
 ```
@@ -384,7 +422,7 @@ fct_inorder(f)
 # Change the Value of Levels
 
 .pull-left-narrow[
-  &lt;img src="img/fct_recode.png" style="width:105px;"&gt;
+  &lt;img src="img/fct_recode.png" style="width:120px;"&gt;
 ]
 .pull-right-wide[
 `fct_recode(f, ...)`  
@@ -395,20 +433,20 @@ Manually change levels.
 **Example**:
 
 ```r
-f &lt;- factor(c("apple", "banana", "apple", "cherry"))
-fct_recode(f, cherry = "apple")
+fruits &lt;- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_recode(fruits, cherry = "apple")
 ```
 
 ```
-## [1] cherry banana cherry cherry
+## [1] cherry banana cherry cherry banana cherry
 ## Levels: cherry banana
 ```
 ---
 
-# Change the Value of Levels
+# Change the Value of Levels (cont.)
 
 .pull-left-narrow[
-  &lt;img src="img/fct_recode.png" style="width:105px;"&gt;
+  &lt;img src="img/fct_recode.png" style="width:120px;"&gt;
 ]
 .pull-right-wide[
 `fct_recode(f, ...)`  
@@ -419,14 +457,15 @@ Manually change levels.
 **Example**:
 
 ```r
-fct_recode(f, cherry = "apple")
+fruits &lt;- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_recode(fruits, cherry = "apple")
 ```
 
 .pull-left-narrow[
-  &lt;img src="img/fct_other.png" style="width:105px;"&gt;
+  &lt;img src="img/fct_other.png" style="width:120px;"&gt;
 ]
 .pull-right-wide[
-`fct_other(f, keep, other = "(Other)")`  
+`fct_other(f, keep, drop, other_level = "Other"`  
 Replace all levels not in `keep` with the value of `other`.
 ]
 &lt;div style="clear:both;"&gt;&lt;/div&gt;
@@ -434,18 +473,18 @@ Replace all levels not in `keep` with the value of `other`.
 **Example**:
 
 ```r
-fct_other(f, keep = c("apple", "banana"))
+fct_other(f, keep = c("banana", "cherry"))
 ```
 
 ```
-## [1] apple  banana apple  Other 
-## Levels: apple banana Other
+## [1] Other  banana Other  cherry banana Other 
+## Levels: banana cherry Other
 ```
 ---
 # Add or Drop Levels
 
 .pull-left-narrow[
-  &lt;img src="img/fct_drop.png" style="width:105px;"&gt;
+  &lt;img src="img/fct_drop.png" style="width:120px;"&gt;
 ]
 .pull-right-wide[
 `fct_drop(f)`  
@@ -467,10 +506,10 @@ fct_drop(colors)
 ## Levels: Red Blue Green
 ```
 ---
-# Add or Drop Levels
+# Add or Drop Levels (cont.)
 
 .pull-left-narrow[
-  &lt;img src="img/fct_drop.png" style="width:105px;"&gt;
+  &lt;img src="img/fct_drop.png" style="width:120px;"&gt;
 ]
 .pull-right-wide[
 `fct_drop(f)`  
@@ -485,7 +524,7 @@ fct_drop(colors)
 ```
 
 .pull-left-narrow[
-&lt;img src="img/fct_explicit_na.png" style="width:100px;"&gt;
+&lt;img src="img/fct_explicit_na.png" style="width:120px;"&gt;
 ]
 .pull-right-wide[
 `fct_na_value_to_level(f, level = "(Missing)")`
@@ -507,45 +546,6 @@ fct_na_value_to_level(colors_with_na)
 ## [1] Red   Blue  &lt;NA&gt;  Green
 ## Levels: Blue Green Red &lt;NA&gt;
 ```
----
-
-# Overview (old)
-
-R uses __factors__ to handle categorical variables, variables that have a fixed and known set of possible values. Factors are also helpful for reordering character vectors to improve display. The goal of the __forcats__ package is to provide a suite of tools that solve common problems with factors, including changing the order of levels or the values. Some examples include: 
-
-* `fct_reorder()`: Reordering a factor by another variable.
-* `fct_infreq()`: Reordering a factor by the frequency of values.
-* `fct_relevel()`: Changing the order of a factor by hand.
-* `fct_lump()`: Collapsing the least/most frequent values of a factor into "other".
-
----
-
-# Functions of `fct_reorder()` (old)
-.pull-left[
-`fct_inorder()`
-Orders the levels by the sequence in which they first appear in the data.
-
-**Usage:** 
-```r
-fct_inorder(f, ordered = NA)
-```
-**Arguments:** 
-- `f`: A factor.
-- `ordered`: A logical determining the "ordered" status of the output factor. NA maintains the current status.
-]
-.pull-right[
-`fct_infreq()`
-Orders levels based on the number of observations per level, starting from the most frequent.
-
-**Usage:** 
-```r
-fct_infreq(f, w = NULL, ordered = NA)
-```
-**Arguments:** 
-- `f`: A factor.
-- `w`: Optional numeric vector specifying weights for each value's frequency in `f`.
-- `ordered`: As explained above.
-]
 
 
 ---
@@ -577,6 +577,39 @@ head(gss_cat)
 ```
 
 ---
+
+# A small example 
+
+---
+
+# Resources
+
+1. **forcats**:
+   - Official Documentation: [forcats.tidyverse.org](https://forcats.tidyverse.org/)
+   - Wickham, H., &amp; Grolemund, G. (2017). Factors. In R for Data Science (1st ed.). O’Reilly Media, Inc. (https://r4ds.had.co.nz/factors.html#factors)
+
+2. **janitor**:
+   - Package on CRAN: [janitor package on CRAN](https://cran.r-project.org/web/packages/janitor/index.html)
+   - Data cleaning with janitor: [Article link or tutorial link](#) _(You can replace this placeholder with any specific resource you have in mind)_
+
+
+Feel free to reach out to instructors for any further guidance or resources!
+
+---
+class: inverse, center, middle
+
+# Ready to become an expert in `forcats`?
+
+Scan the QR code below join the quiz:
+
+&lt;img src="img/mentimeter_qr_code.png" width="250"&gt;
+
+
+Or go to **menti.com** and enter the code **49 85 53 3**
+
+---
+
+
 
 # remark.js
 
@@ -773,8 +806,8 @@ library(leaflet)
 leaflet() %&gt;% addTiles() %&gt;% setView(-93.65, 42.0285, zoom = 17)
 ```
 
-<div class="leaflet html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-57acdce7f71232f07e72" style="width:100%;height:432px;"></div>
-<script type="application/json" data-for="htmlwidget-57acdce7f71232f07e72">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]}],"setView":[[42.0285,-93.65000000000001],17,[]]},"evals":[],"jsHooks":[]}</script>
+<div class="leaflet html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-c6ae463a4e986c18cc4e" style="width:100%;height:432px;"></div>
+<script type="application/json" data-for="htmlwidget-c6ae463a4e986c18cc4e">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]}],"setView":[[42.0285,-93.65000000000001],17,[]]},"evals":[],"jsHooks":[]}</script>
 
 ---
 
@@ -786,8 +819,8 @@ DT::datatable(
 )
 ```
 
-<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-cb4e59ef39ac1ebfe538" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-cb4e59ef39ac1ebfe538">{"x":{"filter":"none","vertical":false,"fillContainer":false,"data":[["1","2","3","4","5","6","7","8","9","10"],[5.1,4.9,4.7,4.6,5,5.4,4.6,5,4.4,4.9],[3.5,3,3.2,3.1,3.6,3.9,3.4,3.4,2.9,3.1],[1.4,1.4,1.3,1.5,1.4,1.7,1.4,1.5,1.4,1.5],[0.2,0.2,0.2,0.2,0.2,0.4,0.3,0.2,0.2,0.1],["setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Sepal.Length<\/th>\n      <th>Sepal.Width<\/th>\n      <th>Petal.Length<\/th>\n      <th>Petal.Width<\/th>\n      <th>Species<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":8,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[8,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-436cef295316922956ce" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-436cef295316922956ce">{"x":{"filter":"none","vertical":false,"fillContainer":false,"data":[["1","2","3","4","5","6","7","8","9","10"],[5.1,4.9,4.7,4.6,5,5.4,4.6,5,4.4,4.9],[3.5,3,3.2,3.1,3.6,3.9,3.4,3.4,2.9,3.1],[1.4,1.4,1.3,1.5,1.4,1.7,1.4,1.5,1.4,1.5],[0.2,0.2,0.2,0.2,0.2,0.4,0.3,0.2,0.2,0.1],["setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Sepal.Length<\/th>\n      <th>Sepal.Width<\/th>\n      <th>Petal.Length<\/th>\n      <th>Petal.Width<\/th>\n      <th>Species<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":8,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[8,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 
 ---
 
@@ -1214,7 +1247,9 @@ The chakra comes from [remark.js](https://remarkjs.com), [**knitr**](https://yih
 <script>var slideshow = remark.create({
 "highlightStyle": "github",
 "highlightLines": true,
-"countIncrementalSlides": false
+"countIncrementalSlides": false,
+"ratio": "16:9",
+"hash": true
 });
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   window.dispatchEvent(new Event('resize'));

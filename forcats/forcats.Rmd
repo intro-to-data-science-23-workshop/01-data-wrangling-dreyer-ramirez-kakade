@@ -1,5 +1,5 @@
 ---
-title: "Introduction to Data Science"
+title: "Introduction to Data Science - Workshop Edition"
 subtitle: "Data Wrangling with `forcats`"
 author: "Elena Dreyer"
 institute: "Hertie School | [GRAD-C11/E1339](https://github.com/intro-to-data-science-22)" #"`r format(Sys.time(), '%d %B %Y')`"
@@ -11,6 +11,8 @@ output:
       highlightStyle: github
       highlightLines: true
       countIncrementalSlides: false
+      ratio: '16:9'
+      hash: true
 ---
 
 
@@ -49,19 +51,39 @@ style_mono_accent(
   padding-bottom: 5px/* Set to 0 or any value you feel looks right */
 }
 
+.pull-right-wide-2{
+  float: right;
+  width: 85%;
+  padding-top: 30px;
+  padding-bottom: 0px/* Set to 0 or any value you feel looks right */
+}
+
+
 .column {
   float: left;
   width: 20%;
-  padding: 5px;
+  padding: 3px;
+  box-sizing: border-box; /* Include padding in the width calculation */
 }
 
-.forcats-overview .column {
-  float: left;
-  width: 19%;
-  padding: 1% 1%;
-  box-sizing: border-box;  /* to ensure padding is included in width */
-}
 ```
+
+# Table of contents
+
+<br>
+
+1. [Why databases?](#whydb)
+
+2. [Relational database fundamentals](#relationaldb)
+
+3. [Back to `dplyr`: joins](#joins)
+
+4. [SQL](#sql)
+
+5. [Talking to databases with R](#dbr)
+
+7. [Summary](#summary)
+
 ---
 class: inverse, center, middle
 
@@ -70,14 +92,15 @@ class: inverse, center, middle
 
 # Introduction to Factors
 
-Factors in R are utilized for **categorical variables** - variables with a known set of possible values. They:
-1. Represent character vectors in non-alphabetical order.
-2. Historically simplified working with characters.
-3. Are helpful in tidyverse, avoiding automatic character-to-factor conversions.
+Factors play a pivotal role when dealing with **categorical data** (variables that have a fixed and known set of possible values) in R. Key points about factors:
 
-> "In R, factors are used to work with categorical variables, variables that have a fixed and known set of possible values." - Source
+1. **Structured Representation**: Unlike character vectors, they don't need to follow alphabetical order.
+2. **Tidyverse Compatibility**: Factors seamlessly integrate into the tidyverse ecosystem.
 
-### Where could data scientists collide with factors?
+
+> "A **factor** is an integer vector with a **levels** attribute that stores a set of mappings between integers and categorical values." 
+
+### Where could data scientists come across factors?
 #### Surveys and Questionnaires:
 
 - Questions with **multiple-choice** answers (e.g., "How satisfied are you with our service?" with responses: "Very Satisfied", "Satisfied", "Neutral", "Dissatisfied", "Very Dissatisfied").
@@ -87,83 +110,96 @@ Factors in R are utilized for **categorical variables** - variables with a known
 # Creating and Working with Factors
 
 **Issues with String Variables**:
-- Limited valid values (e.g., months)
-- Doesn't prevent typos or sort usefully.
+- They have constrained valid values (e.g., months of the year).
+- They're prone to inconsistencies and don't have meaningful sorting.
 
 **Solution** - Use Factors!
 
 ```r
-# Example of creating a factor:
-x1 <- c("Dec", "Apr", "Jan", "Mar")
-month_levels <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-y1 <- factor(x1, levels = month_levels)
+# Turning string into a factor:
+months_vector <- c("Dec", "Apr", "Jan", "Mar")
+month_levels <- month.name  # R's built-in constant for month names
+ordered_months <- factor(months_vector, levels = month_levels)
 ```
 
-**Benefits**:
-1. Values not in the set become `NA`.
-2. Sorts meaningfully.
-3. Can set order of levels based on appearance in data using `fct_inorder()`.
+**Perks** of Using Factors:
 
-> "To create a factor you must start by creating a list of the valid levels." - Source
-
----
-
-class: .forcats-overview
-# Overview of `forcats` Functions
-
-1. **Inspect Factors**
-   - `fct_count()`
-   - `fct_unique()`
-
-2. **Combine Factors**
-   - `fct_c(...)`
-
-3. **Change the Order of Levels**
-   - `fct_relevel()`
-   - `fct_infreq()`
-   - `fct_reorder()`
-
-4. **Change the Value of Levels**
-   - `fct_recode()`
-   - `fct_lump_min()`
-   - `fct_other()`
-
-5. **Add or Drop Levels**
-   - `fct_drop()`
-   - `fct_na_value_to_level()`
+- Restricts values to a predefined set; others become NA.
+- Provides intuitive sorting.
+- Ordering based on data appearance is a breeze with `fct_inorder()` (see later).
 
 ---
-# Overview of `forcats` Functions
+# Say Hello to `forcats`
 
-.pull-left[
-1. **Inspect Factors**
-   - `fct_count()`
-   - `fct_unique()`
+`forcats` is a member of the tidyverse family, dedicated to dealing with **categorical variables** in R.
 
-2. **Combine Factors**
-   - `fct_c(...)`
-
-3. **Change the Order of Levels**
-   - `fct_relevel()`
-   - `fct_infreq()`
-   - `fct_reorder()`
+.pull-left-narrow[.center[
+  <img src="https://forcats.tidyverse.org/logo.png" style="width:90px;">
+]]
+.pull-right-wide-2[
+**Name Origin**: "for" + "cats" - because it's for categorical variables ;-) 
 ]
-.pull-right[
-4. **Change the Value of Levels**
-   - `fct_recode()`
-   - `fct_lump_min()`
-   - `fct_other()`
+<div style="clear:both;"></div>
 
-5. **Add or Drop Levels**
-   - `fct_drop()`
-   - `fct_na_value_to_level()`
+**Installation**: To install, simply run:
+```{r eval=FALSE}
+install.packages("forcats")
+# Or
+install.packages("tidyverse")
+```
+
+**Key Functionalities**:
+- Inspecting factor level.
+- Changing order and value of levels
+- Combining and expanding factors
+- Handling missing values and unused levels
+
+---
+# Overview of (selected) `forcats` Functions
+
+
+.column[
+**Inspect**
+<br>
+`fct_count()`
+`fct_unique()`
 ]
+
+.column[
+**Combine**
+<br>
+`fct_c(...)`
+]
+
+.column[
+**Change Order**
+<br>
+`fct_relevel()`
+`fct_infreq()`
+`fct_reorder()`
+]
+
+.column[
+**Change Value(s)**
+<br>
+`fct_recode()`
+`fct_lump_min()`
+`fct_other()`
+]
+
+.column[
+**Add or Drop**
+<br>
+`fct_drop()`
+`fct_na_value_to_level()`
+]
+
 ---
 
 # Inspect Factors
 
 .pull-left-narrow[
-  <img src="img/fct_count.png" style="width:105px;">
+  <img src="img/fct_count.png" style="width:115px;">
 ]
 .pull-right-wide[
 `fct_count(f, sort = FALSE, prop = FALSE)`  
@@ -176,12 +212,13 @@ Count the number of values with each level.
 f <- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
 fct_count(f)
 ```
+
 ---
 
-# Inspect Factors
+# Inspect Factors (cont.)
 
 .pull-left-narrow[
-  <img src="img/fct_count.png" style="width:105px;">
+  <img src="img/fct_count.png" style="width:115px;">
 ]
 .pull-right-wide[
 `fct_count(f, sort = FALSE, prop = FALSE)`  
@@ -191,12 +228,12 @@ Count the number of values with each level.
 
 **Example**:
 ```{r, results = 'hide'}
-f <- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
-fct_count(f)
+fruits <- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_count(fruits)
 ```
 
 .pull-left-narrow[
-<img src="img/fct_unique.png" style="width:105px;">
+<img src="img/fct_unique.png" style="width:125px;">
 ]
 .pull-right-wide[
 `fct_unique(f)` 
@@ -207,13 +244,13 @@ Return the unique values, removing duplicates.
 
 **Example**:
 ```{r}
-fct_unique(f)
+fct_unique(fruits)
 ```
 ---
 # Combine Factors
 
 .pull-left-narrow[
-  <img src="img/fct_c.png" style="width:110px;">
+  <img src="img/fct_c.png" style="width:125px;">
 ]
 .pull-right-wide[
 `fct_c(...)`  
@@ -228,10 +265,10 @@ f2 <- factor(c("b", "a"))
 fct_c(f1, f2)
 ```
 ---
-# Combine Factors
+# Combine Factors (cont.)
 
 .pull-left-narrow[
-  <img src="img/fct_c.png" style="width:110px;">
+  <img src="img/fct_c.png" style="width:125px;">
 ]
 .pull-right-wide[
 `fct_c(...)`  
@@ -245,7 +282,7 @@ fct_c(f1, f2)
 ```
 
 .pull-left-narrow[
-<img src="img/fct_unify.png" style="width:100px;">
+<img src="img/fct_unify.png" style="width:120px;">
 ]
 .pull-right-wide[
 `fct_unify(fs, levels = lvls_union(fs))`
@@ -263,7 +300,7 @@ fct_unify(list(f2, f1))
 # Change the Order of Levels
 
 .pull-left-narrow[
-  <img src="img/fct_infreq.png" style="width:105px;">
+  <img src="img/fct_infreq.png" style="width:120px;">
 ]
 .pull-right-wide[
 `fct_infreq(f, ordered = NA)` 
@@ -274,15 +311,16 @@ Reorder levels by the frequency in which they appear in the data (highest freque
 
 **Example**:
 ```{r}
-fct_infreq(f)
+fruits <- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_infreq(fruits)
 ```
 
 ---
 
-# Change the Order of Levels
+# Change the Order of Levels (cont.)
 
 .pull-left-narrow[
-  <img src="img/fct_infreq.png" style="width:105px;">
+  <img src="img/fct_infreq.png" style="width:120px;">
 ]
 .pull-right-wide[
 `fct_infreq(f, ordered = NA)` 
@@ -293,11 +331,12 @@ Reorder levels by the frequency in which they appear in the data (highest freque
 
 **Example**:
 ```{r, results = 'hide'}
-fct_infreq(f)
+fruits <- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_infreq(fruits)
 ```
 
 .pull-left-narrow[
-<img src="img/fct_inorder.png" style="width:105px;">
+<img src="img/fct_inorder.png" style="width:120px;">
 ]
 .pull-right-wide[
 `fct_inorder(f, ordered = NA)`
@@ -308,14 +347,14 @@ Reorder levels by the order in which they appear in the data.
 
 **Example**:
 ```{r}
-fct_inorder(f)
+fct_inorder(fruits)
 ```
 ---
 
 # Change the Value of Levels
 
 .pull-left-narrow[
-  <img src="img/fct_recode.png" style="width:105px;">
+  <img src="img/fct_recode.png" style="width:120px;">
 ]
 .pull-right-wide[
 `fct_recode(f, ...)`  
@@ -325,15 +364,15 @@ Manually change levels.
 
 **Example**:
 ```{r}
-f <- factor(c("apple", "banana", "apple", "cherry"))
-fct_recode(f, cherry = "apple")
+fruits <- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_recode(fruits, cherry = "apple")
 ```
 ---
 
-# Change the Value of Levels
+# Change the Value of Levels (cont.)
 
 .pull-left-narrow[
-  <img src="img/fct_recode.png" style="width:105px;">
+  <img src="img/fct_recode.png" style="width:120px;">
 ]
 .pull-right-wide[
 `fct_recode(f, ...)`  
@@ -343,27 +382,28 @@ Manually change levels.
 
 **Example**:
 ```{r, results = 'hide'}
-fct_recode(f, cherry = "apple")
+fruits <- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_recode(fruits, cherry = "apple")
 ```
 
 .pull-left-narrow[
-  <img src="img/fct_other.png" style="width:105px;">
+  <img src="img/fct_other.png" style="width:120px;">
 ]
 .pull-right-wide[
-`fct_other(f, keep, other = "(Other)")`  
+`fct_other(f, keep, drop, other_level = "Other"`  
 Replace all levels not in `keep` with the value of `other`.
 ]
 <div style="clear:both;"></div>
 
 **Example**:
 ```{r }
-fct_other(f, keep = c("apple", "banana"))
+fct_other(f, keep = c("banana", "cherry"))
 ```
 ---
 # Add or Drop Levels
 
 .pull-left-narrow[
-  <img src="img/fct_drop.png" style="width:105px;">
+  <img src="img/fct_drop.png" style="width:120px;">
 ]
 .pull-right-wide[
 `fct_drop(f)`  
@@ -379,10 +419,10 @@ colors <- factor(c("Red", "Blue", "Green"),
 fct_drop(colors)
 ```
 ---
-# Add or Drop Levels
+# Add or Drop Levels (cont.)
 
 .pull-left-narrow[
-  <img src="img/fct_drop.png" style="width:105px;">
+  <img src="img/fct_drop.png" style="width:120px;">
 ]
 .pull-right-wide[
 `fct_drop(f)`  
@@ -396,7 +436,7 @@ fct_drop(colors)
 ```
 
 .pull-left-narrow[
-<img src="img/fct_explicit_na.png" style="width:100px;">
+<img src="img/fct_explicit_na.png" style="width:120px;">
 ]
 .pull-right-wide[
 `fct_na_value_to_level(f, level = "(Missing)")`
@@ -412,45 +452,6 @@ Convert NA to a specified level in a factor.
 colors_with_na <- factor(c("Red", "Blue", NA, "Green"))
 fct_na_value_to_level(colors_with_na)
 ```
----
-
-# Overview (old)
-
-R uses __factors__ to handle categorical variables, variables that have a fixed and known set of possible values. Factors are also helpful for reordering character vectors to improve display. The goal of the __forcats__ package is to provide a suite of tools that solve common problems with factors, including changing the order of levels or the values. Some examples include: 
-
-* `fct_reorder()`: Reordering a factor by another variable.
-* `fct_infreq()`: Reordering a factor by the frequency of values.
-* `fct_relevel()`: Changing the order of a factor by hand.
-* `fct_lump()`: Collapsing the least/most frequent values of a factor into "other".
-
----
-
-# Functions of `fct_reorder()` (old)
-.pull-left[
-`fct_inorder()`
-Orders the levels by the sequence in which they first appear in the data.
-
-**Usage:** 
-```r
-fct_inorder(f, ordered = NA)
-```
-**Arguments:** 
-- `f`: A factor.
-- `ordered`: A logical determining the "ordered" status of the output factor. NA maintains the current status.
-]
-.pull-right[
-`fct_infreq()`
-Orders levels based on the number of observations per level, starting from the most frequent.
-
-**Usage:** 
-```r
-fct_infreq(f, w = NULL, ordered = NA)
-```
-**Arguments:** 
-- `f`: A factor.
-- `w`: Optional numeric vector specifying weights for each value's frequency in `f`.
-- `ordered`: As explained above.
-]
 
 
 ---
@@ -466,6 +467,39 @@ head(gss_cat)
 ```
 
 ---
+
+# A small example 
+
+---
+
+# Resources
+
+1. **forcats**:
+   - Official Documentation: [forcats.tidyverse.org](https://forcats.tidyverse.org/)
+   - Wickham, H., & Grolemund, G. (2017). Factors. In R for Data Science (1st ed.). O’Reilly Media, Inc. (https://r4ds.had.co.nz/factors.html#factors)
+
+2. **janitor**:
+   - Package on CRAN: [janitor package on CRAN](https://cran.r-project.org/web/packages/janitor/index.html)
+   - Data cleaning with janitor: [Article link or tutorial link](#) _(You can replace this placeholder with any specific resource you have in mind)_
+
+
+Feel free to reach out to instructors for any further guidance or resources!
+
+---
+class: inverse, center, middle
+
+# Ready to become an expert in `forcats`?
+
+Scan the QR code below join the quiz:
+
+<img src="img/mentimeter_qr_code.png" width="250">
+
+
+Or go to **menti.com** and enter the code **49 85 53 3**
+
+---
+
+
 
 # remark.js
 
