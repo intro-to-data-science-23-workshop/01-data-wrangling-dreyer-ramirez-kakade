@@ -24,7 +24,7 @@ library(tidyverse)
 ```{r xaringan-themer, include=FALSE, warning=FALSE}
 library(xaringanthemer)
 style_mono_accent(
-  base_color = "#1c5253",
+  base_color = "#23373B",
   header_font_google = google_font("Josefin Sans"),
   text_font_google   = google_font("Montserrat", "300", "300i"),
   code_font_google   = google_font("Fira Mono")
@@ -560,8 +560,8 @@ gss_cat %>%
    - Wickham, H., & Grolemund, G. (2017). Factors. In R for Data Science (1st ed.). O’Reilly Media, Inc. (https://r4ds.had.co.nz/factors.html#factors)
 
 2. **janitor**:
-   - Package on CRAN: [janitor package on CRAN](https://cran.r-project.org/web/packages/janitor/index.html)
-   - Data cleaning with janitor: [Article link or tutorial link](#) _(You can replace this placeholder with any specific resource you have in mind)_
+   - [Package janitor documentation](https://cran.r-project.org/web/packages/janitor/janitor.pdf)
+   - [GitHub Repository](https://github.com/sfirke/janitor)
 
 
 Feel free to reach out to instructors for any further guidance or resources!

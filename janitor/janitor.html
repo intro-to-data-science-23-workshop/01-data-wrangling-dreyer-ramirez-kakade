@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Introduction to Data Science</title>
+    <title>Introduction to Data Science - Workshop Edition</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Luis Fernando Ramirez, Elena Dreyer, and Shruti Kakade" />
+    <meta name="author" content="Luis Fernando Ramirez, Elena Dreyer and Shruti Kakade" />
     <script src="libs/header-attrs/header-attrs.js"></script>
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
@@ -16,16 +16,16 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# Introduction to Data Science
+# Introduction to Data Science - Workshop Edition
 ]
 .subtitle[
-## Data Wrangling with <code>Janitor</code>
+## Cleaning and wrangling data with <code>janitor</code> and <code>forcats</code>
 ]
 .author[
-### Luis Fernando Ramirez, Elena Dreyer, and Shruti Kakade
+### Luis Fernando Ramirez, Elena Dreyer and Shruti Kakade
 ]
 .institute[
-### Hertie School | <a href="https://github.com/intro-to-data-science-23">GRAD-C11/E1339</a>
+### Hertie School | <a href="https://github.com/intro-to-data-science-23/workshop-presentations">GRAD-C11/E1339</a>
 ]
 
 ---
@@ -35,7 +35,62 @@ class: center, middle, inverse, title-slide
 
 
 &lt;style type="text/css"&gt;
-/*.columns { display: flex; }*/
+
+a, a &gt; code {
+  color: rgb(249, 38, 114); || sets color of links */
+  text-decoration: none; /* turns off background coloring of links */
+}
+
+.title-slide {
+  background-color: #23373B;
+  border-top: 80px solid #23373B;
+}
+
+.title-slide h1  {
+  color: #FFFFFF;
+  font-size: 40px;
+  text-shadow: none;
+  font-weight: 400;
+  text-align: left;
+  margin-left: 15px;
+  padding-top: 80px;
+}
+
+.title-slide h2  {
+  margin-top: -25px;
+  padding-bottom: -20px;
+  color: #FFFFFF;
+  text-shadow: none;
+  font-weight: 300;
+  font-size: 35px;
+  text-align: left;
+  margin-left: 15px;
+}
+.title-slide h3  {
+  color: #FFFFFF;
+  text-shadow: none;
+  font-weight: 300;
+  font-size: 25px;
+  text-align: left;
+  margin-left: 15px;
+  margin-bottom: -30px;
+}
+
+hr, .title-slide h2::after, .mline h1::after {
+  content: '';
+  display: block;
+  border: none;
+  background-color: rgb(249, 38, 114);
+  color: rgb(249, 38, 114);
+  height: 2px;
+}
+
+h1 code, h2 code, h3 code, h4 code, h5 code {
+    background-color: #f5f5f5;  /* This is a light gray color. Modify as needed. */
+    color: #333;                /* This is almost black. Modify as desired. */
+    padding: 2px 5px;           /* Adjusts the padding around the inline code */
+}
+
 
 .pull-left {
   padding-top: 0px;
@@ -54,35 +109,57 @@ class: center, middle, inverse, title-slide
   padding-bottom: 5px/* Set to 0 or any value you feel looks right */
 }
 
+.pull-right-wide-2{
+  float: right;
+  width: 85%;
+  padding-top: 30px;
+  padding-bottom: 0px/* Set to 0 or any value you feel looks right */
+}
+
 .column {
   float: left;
   width: 20%;
-  padding: 5px;
-}
-
-.forcats-overview .column {
-  float: left;
-  width: 19%;
-  padding: 1% 1%;
-  box-sizing: border-box;  /* to ensure padding is included in width */
+  padding: 3px;
+  box-sizing: border-box; /* Include padding in the width calculation */
 }
 &lt;/style&gt;
+
+# Table of Contents
+
+.pull-left[
+**janitor**
+- Introduction to `janitor`
+- Cleaning Names with `clean_names()`
+- Tabulating Data with `tabyl()`
+- Hands-on with `janitor`: Public Innovation Lab in Mexico
+- Additional functionalities
+]
+
+.pull-right[
+**forcats**
+- Introduction to `forcats`
+- Overview of Key `forcats` Functions
+  - Inspect, Combine, and Modify Factors
+  - Change Order, Value, and Add/Drop Levels
+- Hands-on with `forcats`: A Small Example using `gss_cat`
+]
+
 ---
 class: inverse, center, middle
 
-# Get Started
+# Let's Get Started
 ---
 
 # Overview
 
-*Janitor* is a package built by Sam Firke. Its main functionalities include:
-1. Simple functions for *cleaning* and *examining* data
-2. It is specifically optimized for users, so its preferred audience are *beginners* and *intermediate* R coders. 
-3. *Advanced* R users can do data wrangling data faster.
+`janitor` is a package built by Sam Firke. Its main functionalities include:
+1. Simple functions for **cleaning** and **examining** data
+2. It is specifically optimized for users, so its preferred audience are **beginners** and **intermediate** R coders. 
+3. **Advanced** R users can do data wrangling data faster.
 
 &gt; "Data scientists, according to interviews and expert estimates, spend from 50 percent to 80 percent of their time mired in this more mundane labor of collecting and preparing unruly digital data, before it can be explored for useful nuggets." - The New York Times
 
-### Main User-cases:
+### Main Use-Cases:
 #### Unstructured or raw data:
 
 - perfectly *format* data.frame column names; 
@@ -90,80 +167,47 @@ class: inverse, center, middle
 - provide other tools for *cleaning and examining data.frames*.
 ---
 
-# Overall: 
+# Overview
 
-#### *Janitor* is a *tidyverse-oriented package*. It plays nicely with the %&gt;% pipe and is optimized for cleaning data brought in with the readr and readxl packages.
+`janitor` is a **tidyverse-oriented package**. It plays nicely with the %&gt;% pipe and is optimized for cleaning data brought in with the `readr` and `readxl` packages.
 
 - It provides simple functions that can be used to quickly and effectively clean and manage data
 
-## Let's get started
-### Step 1: 
-**Installing library**:
---&gt; `install.packages("janitor")`
---&gt; `library(janitor)`
+### Let's get started
+#### Step 1: Installing and loading library:
 
 
 ```r
-#load libraries 
-library(janitor)
-```
-
-```
-## 
-## Attaching package: 'janitor'
-```
-
-```
-## The following objects are masked from 'package:stats':
-## 
-##     chisq.test, fisher.test
-```
-
-```r
-library(readr)
-library(tidyverse)
-library(dplyr)
-library(ggplot2)
-library(knitr)
-library(kableExtra)
-```
-
-```
-## 
-## Attaching package: 'kableExtra'
-```
-
-```
-## The following object is masked from 'package:dplyr':
-## 
-##     group_rows
+# install.packages("janitor")
+library("janitor")
 ```
 
 ---
 
-# First User-case: Cleaning data
+# First Use-Case: Cleaning Data
 
-###**Clean data frame names with `clean_names()`**
+### Clean data frame names with `clean_names()`
 
 Datasets not always include clear and concise names for columns. Column names in a dataset should be 
 
-- Function to be used: *clean_names*
+- Function to be used: `clean_names()`
 - This function can be used for piped dataframes workflows. 
 
 &gt; “Variable and function names should use only lowercase letters, numbers, and underscores. Use underscores (so called snake_case) to separate words within a name." -  [The tidyverse style guide](https://style.tidyverse.org/syntax.html)
  
 ---
 
-#*Some Examples:*
+#Some Examples:
 
-##Spaces, caps, special characters in columns names:
+### Spaces, caps, special characters in columns names:
 
 ```r
-#We can create a test data frame with variable names that contain special characters, dots instead of "_" and Caps on. 
+# We can create a test data frame with variable names that contain special characters, 
+# dots instead of "_" and Caps on. 
 
 dirty_data &lt;- as.data.frame(matrix(ncol = 5))
 names(dirty_data) &lt;- c("FIRST Name", "Last Name" ,"cl@33#***","CAPS", "scored.goals.season")
-clean_data &lt;- dirty_data |&gt; 
+clean_data &lt;- dirty_data %&gt;% 
   clean_names()
 
 colnames(clean_data)
@@ -174,18 +218,18 @@ colnames(clean_data)
 ## [4] "caps"                "scored_goals_season"
 ```
 ---
+# `janitor` Demonstration
 
-# Using dataset from a public innovation lab in Mexico City
+### Using dataset from a public innovation lab in Mexico City
+
+By using a real-life dataset, we want to demonatrate the perks `janitor` has to offer. First we need to download [this dataset](https://datos.cdmx.gob.mx/dataset/interrupcion-legal-del-embarazo/resource/755e9b54-401d-40a6-8787-c45a8f97937e) from a Mexican public agency about legal pregnancy interruption from 2016 - 2018 (updated in 2023).
 
 
 ```r
-#Using the a real-life dataset 
-#download this dataset from a mexican public agency about legal pregnancy interruption 
-#from 2016 - 2018 updated in 2023. URL:
-#https://datos.cdmx.gob.mx/dataset/interrupcion-legal-del-embarazo/resource/755e9b54-401d-40a6-8787-c45a8f97937e
-
+# loading the dataset
 data &lt;- read.csv("ile_2016_2018.csv", stringsAsFactors = F, fileEncoding = "UTF-8")
-#don't forget to include the path to your WD when importing a dataset in the project space. (colnames are in spanish)
+# don't forget to include the path to your WD when importing a dataset in the project space.
+# (colnames are in Spanish)
 
 names(data)[1:5]
 ```
@@ -208,14 +252,15 @@ names(data_clean_names)[1:5]
 
 ---
 
-#*User-case 2: Use tabyl function* 
-### This dataset is perfect for us to use the tabyl function to display neat tables on variables we want to analyze.
+# Second Use Case: Using the `tabyl` function
+**This dataset is perfect for us to use the `tabyl` function to display neat tables on variables we want to analyze.**
 
-Why not using *table()*? 
+Why not using `table()`? 
 - we cannot using the pipe %&gt;% with this base R function 
-- table() doesn't give us data frames as outputs. (Tabyl gives us a dataframe in tidy format consistent with tidyverse)
-- Only gives us one-dimensional variables, and tabyl provides automatic proportions and counts. 
-####Example 1: One-dimensional table
+- `table()` doesn't give us data frames as outputs. (`tabyl` gives us a dataframe in tidy format consistent with tidyverse)
+- Only gives us one-dimensional variables, and `tabyl` provides automatic proportions and counts. 
+
+### Example 1: One-dimensional table
 
 
 ```r
@@ -230,13 +275,15 @@ tabyl(data_clean_names$anio)
 ##                   2017 17597 3.426607e-01
 ##                   2018 15718 3.060716e-01
 ```
-
 ---
-#Example 2: two-way table
+
+# Second Use Case: Using the `tabyl` function
+
+### Example 2: Two-way table
 
 ```r
 table&lt;- data_clean_names %&gt;% 
-  tabyl(anio, estado_civil) |&gt; 
+  tabyl(anio, estado_civil) %&gt;% 
   drop_na(anio)
 print(table)
 ```
@@ -250,19 +297,24 @@ print(table)
 ```
 
 ---
-# Now we recreate percentages
-###Here, we have to do some additional coding the add the % in this twoway table. 
+
+# Second Use Case: Using the `tabyl` function
+
+### Now we recreate percentages
+Here, we have to do some additional coding the add the % in this two-way table. 
+
 
 ```r
 #now with % on both tables
-table2 &lt;- data_clean_names |&gt; 
-  tabyl(anio, estado_civil) |&gt; 
-  adorn_totals("col") |&gt;              #Total per row
-  adorn_percentages("row") |&gt;         #percentage per row
-  adorn_pct_formatting(digits = 2) |&gt; #rounded value
-  adorn_ns() |&gt;                       #adding absolute numbers
+table2 &lt;- data_clean_names %&gt;% 
+  tabyl(anio, estado_civil) %&gt;% 
+  adorn_totals("col") %&gt;%              #Total per row
+  adorn_percentages("row") %&gt;%         #percentage per row
+  adorn_pct_formatting(digits = 2) %&gt;% #rounded value
+  adorn_ns() %&gt;%                       #adding absolute numbers
   adorn_title()                      #adds variable name
-print(table2)
+
+head(table2)
 ```
 
 ```
@@ -281,8 +333,10 @@ print(table2)
 ```
 
 ---
-#With Three variables
-As it is expected, oftentimes we need tables that can relate over two variables at once.
+
+# Second Use Case: Using the `tabyl` function
+### With three variables
+As expected, oftentimes we need tables that can relate over two variables at once.
 Although, for this reason we need prettier design to relate the information easily. 
 
 For this reason, we can do the following: create a table with tabyl and 
@@ -290,12 +344,12 @@ use adorn for prettier designs.
 Three-way tabyl 
 
 ```r
-data_clean_names  |&gt; 
-  tabyl(resultado_ile, recibio_consejeria, anio) |&gt; 
-  adorn_percentages("all") |&gt; 
-  adorn_pct_formatting(digits = 1) |&gt;  
-  adorn_title() |&gt; 
-  kable() |&gt; 
+data_clean_names  %&gt;% 
+  tabyl(resultado_ile, recibio_consejeria, anio) %&gt;% 
+  adorn_percentages("all") %&gt;% 
+  adorn_pct_formatting(digits = 1) %&gt;%  
+  adorn_title() %&gt;% 
+  kable() %&gt;% 
   kable_styling(font_size = 8.5)#To fit the table by reducing font size
 ```
 
@@ -461,8 +515,9 @@ data_clean_names  |&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 ---
-#Extra useful functions: 
-###Fixing dates, Rounding numbers, and detect duplicated records.
+# Additional Useful Functions 
+
+### Fixing dates
 .pull-left[
 For fixing dates a common error with excel dates we have the option to use janitor. 
 The "excel_numeric_to_date()" function solves the problem where in Excel dates are represented in numbers. 
@@ -495,8 +550,8 @@ print(r_dates)  # Outputs "2021-01-01" and "2021-02-01
 ```
 ]
 ---
-
-#For rounding numbers 
+# Additional Useful Functions 
+### Rounding numbers 
 
 
 This function "round_to_fraction" to round decimals to the nearest fraction. 
@@ -522,17 +577,26 @@ round(numbers)
 ## [1] 4 2
 ```
 ---
-# For detecting duplicated records 
-In this case we use the 'get_dupes()' function.  
+# Additional Useful Functions  
+
+### Detecting duplicated records 
+In this case we use the `get_dupes()` function.  
 - Detects duplicate records when cleaning data in specific columns
 - The output includes a dataframe with the specified columns (or all), and 
-a column named 'dupe_count' which has the number of times each value 
+a column named `dupe_count` which has the number of times each value 
 appears in the dataset.
+
+.pull-left[
 
 ```r
 #EXAMPLE: Create a sample dataframe
 df &lt;- data.frame(ID = c(1, 2, 3, 4, 2, 5),
                  Name = c("Alice", "Bob", "Charlie", "David", "Bob", "Eve"))
+```
+]
+.pull-right[
+
+```r
 # Identify duplicates in the ID column
 get_dupes(df, ID)
 ```
@@ -542,6 +606,8 @@ get_dupes(df, ID)
 ## 1  2          2  Bob
 ## 2  2          2  Bob
 ```
+]
+.center[
 
 ```r
 # Identify duplicates based on combinations of ID and Name
@@ -553,16 +619,14 @@ get_dupes(df, ID, Name)
 ## 1  2  Bob          2
 ## 2  2  Bob          2
 ```
+]
 ---
-#Further useful functions:
-###Dealing with NAs.
+# Further useful functions
+### Dealing with NAs
 
-.pull-left[
 - `remove_empty()`: Remove empty rows or columns from a dataframe.
 - `convert_to_na()`: Convert specific values in a dataframe to NAs.
-]
 
-.pull-right[
 
 
 ```r
@@ -580,9 +644,9 @@ df_clean &lt;- df %&gt;%
 #df_clean &lt;- df_clean %&gt;% 
  # convert_to_na(list(Gender = "", Alt_Gender = "", Name = ""))
 ```
-]
+
 ---
-#Resources
+# Resources
 
 ####For original material on the `Janitor` package
 
@@ -590,6 +654,44 @@ df_clean &lt;- df %&gt;%
 - [GitHub Repository](https://github.com/sfirke/janitor)
 
 ####Additional Resources: 
+
+---
+# `janitor` Demonstration
+
+### Using dataset from a public innovation lab in Mexico City
+
+By using a real-life dataset
+
+
+```r
+#Using the a real-life dataset 
+#download this dataset from a mexican public agency about legal pregnancy interruption 
+#from 2016 - 2018 updated in 2023. URL:
+#https://datos.cdmx.gob.mx/dataset/interrupcion-legal-del-embarazo/resource/755e9b54-401d-40a6-8787-c45a8f97937e
+
+data &lt;- read.csv("ile_2016_2018.csv", stringsAsFactors = F, fileEncoding = "UTF-8")
+#don't forget to include the path to your WD when importing a dataset in the project space. (colnames are in spanish)
+
+names(data)[1:5]
+```
+
+```
+## [1] "anio"          "mes"           "fecha_ingreso" "referida"     
+## [5] "estado_civil"
+```
+
+```r
+data_clean_names &lt;-  clean_names(data)
+
+names(data_clean_names)[1:5]
+```
+
+```
+## [1] "anio"          "mes"           "fecha_ingreso" "referida"     
+## [5] "estado_civil"
+```
+
+---
 
 
 
