@@ -162,9 +162,9 @@ class: inverse, center, middle
 ### Main Use-Cases:
 #### Unstructured or raw data:
 
-- perfectly *format* data.frame column names; 
-- create and format *frequency tables of one, two, or three variables*; 
-- provide other tools for *cleaning and examining data.frames*.
+- perfectly **format** data.frame column names; 
+- create and format **frequency tables of one, two, or three variables**; 
+- provide other tools for **cleaning and examining data frames**.
 ---
 
 # Overview
@@ -188,7 +188,8 @@ library("janitor")
 
 ### Clean data frame names with `clean_names()`
 
-Datasets not always include clear and concise names for columns. Column names in a dataset should be 
+Datasets not always include clear and concise names for columns. Column names in a dataset should use lowercase letters, numbers, and underscores. Underscores areu sed to separate 
+words within a variable name
 
 - Function to be used: `clean_names()`
 - This function can be used for piped dataframes workflows. 
@@ -197,7 +198,7 @@ Datasets not always include clear and concise names for columns. Column names in
  
 ---
 
-#Some Examples:
+#Some Examples
 
 ### Spaces, caps, special characters in columns names:
 
@@ -341,7 +342,8 @@ Although, for this reason we need prettier design to relate the information easi
 
 For this reason, we can do the following: create a table with tabyl and 
 use adorn for prettier designs.
-Three-way tabyl 
+
+#### Three-way `tabyl` 
 
 ```r
 data_clean_names  %&gt;% 
@@ -520,7 +522,7 @@ data_clean_names  %&gt;%
 ### Fixing dates
 .pull-left[
 For fixing dates a common error with excel dates we have the option to use janitor. 
-The "excel_numeric_to_date()" function solves the problem where in Excel dates are represented in numbers. 
+The `excel_numeric_to_date()` function solves the problem where in Excel dates are represented in numbers. 
 
 This function turns Excel's numeric format into R date format. 
 
@@ -537,7 +539,8 @@ print(r_date)
 ## [1] "2021-01-01"
 ```
 ]
-.pull-right[We also have the "convert_to_date()" function which converts a mix of date and datetime formats to date.
+.pull-right[
+We also have the `convert_to_date()` function which converts a mix of date and datetime formats to date.
 
 ```r
 excel_dates &lt;- c(44197, 44228)  # Corresponding to 2021-01-01 and 2021-02-01
@@ -621,7 +624,7 @@ get_dupes(df, ID, Name)
 ```
 ]
 ---
-# Further useful functions
+# Further Useful Functions
 ### Dealing with NAs
 
 - `remove_empty()`: Remove empty rows or columns from a dataframe.
