@@ -2,11 +2,11 @@
 
 ## Summary
 
-This repository provides materials for a session as part of the [I2DS Tools for Data Science workshop](https://github.com/intro-to-data-science-23-workshop) run at the [Hertie School, Berlin](https://www.hertie-school.org/en/) in October 2023. The student-run workshop is part of the course [Introduction to Data Science](https://github.com/intro-to-data-science-23) taught by Simon Munzert at the Hertie School, Berlin, in Fall 2023.
+This repository provides materials for our session on how to clean and wrangle data using *janitor* and *forcats*as part of the [I2DS Tools for Data Science workshop](https://github.com/intro-to-data-science-23-workshop) run at the [Hertie School, Berlin](https://www.hertie-school.org/en/) in October 2023. The student-run workshop is part of the course [Introduction to Data Science](https://github.com/intro-to-data-science-23) taught by Simon Munzert at the Hertie School, Berlin, in Fall 2023.
 
 ### Session contents
 
-This session will introduce you to the intricacies of factor management with R using the "forcats" package, as well as data cleaning and tidying with the "janitor" package. Both packages are essential for efficient data manipulation and ensuring clean and consistent datasets.
+This session will introduce you to the intricacies of factor management with R using the "forcats" package, as well as data cleaning and tidying with the "janitor" package. Both packages are essential for efficient data manipulation and ensuring clean and consistent datasets. Have a look at our [presentation](https://github.com/elenaivadreyer/01-wrangling-dreyer-ramirez-kakade/blob/main/final_presentation_files/janitor_forcats.Rmd) to learn more! 
 
 ### Main learning objectives
 
@@ -47,7 +47,7 @@ The goals of this session are to:
 
 ## Quiz and practice materials
 - Click [here](https://www.menti.com/al7p2pkdh4b3) to take our quiz to test your knowledge about the `forcats` package!
-- Have a look at our practice materials and try out `janitor` to wrangle untidy data
+- Have a look at our [practice materials] (https://github.com/elenaivadreyer/01-wrangling-dreyer-ramirez-kakade/blob/main/final_presentation_files/janitor_exercises.Rmd) and try out `janitor` to wrangle untidy data
 
 ## License
 
