@@ -1,0 +1,911 @@
+---
+title: "Introduction to Data Science - Workshop Edition"
+subtitle: "Cleaning and wrangling data with `janitor` and `forcats`"
+author: "Luis Fernando Ramirez, Elena Dreyer and Shruti Kakade"
+institute: "Hertie School | [GRAD-C11/E1339](https://github.com/intro-to-data-science-23/workshop-presentations)" #"`r format(Sys.time(), '%d %B %Y')`"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9'
+      hash: true
+---
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(tidyverse)
+library(janitor)
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+```
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  base_color = "#23373B",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "300", "300i"),
+  code_font_google   = google_font("Fira Mono")
+)
+```
+
+```{css, echo=FALSE}
+/*.columns { display: flex; }*/
+
+a, a > code {
+  color: rgb(249, 38, 114); || sets color of links */
+  text-decoration: none; /* turns off background coloring of links */
+}
+
+.title-slide {
+  background-color: #23373B;
+  border-top: 80px solid #23373B;
+}
+
+.title-slide h1  {
+  color: #FFFFFF;
+  font-size: 40px;
+  text-shadow: none;
+  font-weight: 400;
+  text-align: left;
+  margin-left: 15px;
+  padding-top: 80px;
+}
+
+.title-slide h2  {
+  margin-top: -25px;
+  padding-bottom: -20px;
+  color: #FFFFFF;
+  text-shadow: none;
+  font-weight: 300;
+  font-size: 35px;
+  text-align: left;
+  margin-left: 15px;
+}
+.title-slide h3  {
+  color: #FFFFFF;
+  text-shadow: none;
+  font-weight: 300;
+  font-size: 25px;
+  text-align: left;
+  margin-left: 15px;
+  margin-bottom: -30px;
+}
+
+hr, .title-slide h2::after, .mline h1::after {
+  content: '';
+  display: block;
+  border: none;
+  background-color: rgb(249, 38, 114);
+  color: rgb(249, 38, 114);
+  height: 2px;
+}
+
+h1 code, h2 code, h3 code, h4 code, h5 code {
+    background-color: #f5f5f5;  /* This is a light gray color. Modify as needed. */
+    color: #333;                /* This is almost black. Modify as desired. */
+    padding: 2px 5px;           /* Adjusts the padding around the inline code */
+}
+
+
+.pull-left {
+  padding-top: 0px;
+}
+
+.pull-left-narrow {
+  float: left;
+  width: 15%;
+  padding-bottom: 5px
+}
+
+.pull-right-wide {
+  float: right;
+  width: 85%;
+  padding-top: 0;
+  padding-bottom: 5px/* Set to 0 or any value you feel looks right */
+}
+
+.pull-right-wide-2{
+  float: right;
+  width: 85%;
+  padding-top: 30px;
+  padding-bottom: 0px/* Set to 0 or any value you feel looks right */
+}
+
+
+.column {
+  float: left;
+  width: 20%;
+  padding: 3px;
+  box-sizing: border-box; /* Include padding in the width calculation */
+}
+
+```
+
+# Table of Contents
+
+.pull-left[
+**janitor**
+- Introduction to `janitor`
+- Cleaning Names with `clean_names()`
+- Tabulating Data with `tabyl()`
+- Hands-on with `janitor`: Public Innovation Lab in Mexico
+- Additional functionalities
+]
+
+.pull-right[
+**forcats**
+- Introduction to `forcats`
+- Overview of Key `forcats` Functions
+  - Inspect, Combine, and Modify Factors
+  - Change Order, Value, and Add/Drop Levels
+- Hands-on with `forcats`: A Small Example using `gss_cat`
+]
+
+---
+class: inverse, center, middle
+
+# Let's Get Started
+---
+
+# Overview
+
+`janitor` is a package built by Sam Firke. Its main functionalities include:
+1. Simple functions for **cleaning** and **examining** data
+2. It is specifically optimized for users, so its preferred audience are **beginners** and **intermediate** R coders. 
+3. **Advanced** R users can do data wrangling data faster.
+
+> "Data scientists, according to interviews and expert estimates, spend from 50 percent to 80 percent of their time mired in this more mundane labor of collecting and preparing unruly digital data, before it can be explored for useful nuggets." - The New York Times
+
+### Main Use-Cases:
+#### Unstructured or raw data:
+
+- perfectly **format** data.frame column names; 
+- create and format **frequency tables of one, two, or three variables**; 
+- provide other tools for **cleaning and examining data frames**.
+---
+
+# Overview
+
+`janitor` is a **tidyverse-oriented package**. It plays nicely with the %>% pipe and is optimized for cleaning data brought in with the `readr` and `readxl` packages.
+
+- It provides simple functions that can be used to quickly and effectively clean and manage data
+
+### Let's get started
+#### Step 1: Installing and loading library:
+
+```{r}
+# install.packages("janitor")
+library("janitor")
+```
+
+---
+
+# First Use-Case: Cleaning Data
+
+### Clean data frame names with `clean_names()`
+
+Datasets not always include clear and concise names for columns. Column names in a dataset should use lowercase letters, numbers, and underscores. Underscores areu sed to separate 
+words within a variable name.
+
+- Function to be used: `clean_names()`
+- This function can be used for piped dataframes workflows. 
+
+> “Variable and function names should use only lowercase letters, numbers, and underscores. Use underscores (so called snake_case) to separate words within a name." -  [The tidyverse style guide](https://style.tidyverse.org/syntax.html)
+ 
+---
+
+#Some Examples
+
+### Spaces, caps, special characters in columns names:
+```{r}
+
+# We can create a test data frame with variable names that contain special characters, 
+# dots instead of "_" and Caps on. 
+
+dirty_data <- as.data.frame(matrix(ncol = 5))
+names(dirty_data) <- c("FIRST Name", "Last Name" ,"cl@33#***","CAPS", "scored.goals.season")
+clean_data <- dirty_data %>% 
+  clean_names()
+
+colnames(clean_data)
+```
+---
+# `janitor` Demonstration
+
+### Using dataset from a public innovation lab in Mexico City
+
+By using a real-life dataset, we want to demonatrate the perks `janitor` has to offer. First we need to download [this dataset](https://datos.cdmx.gob.mx/dataset/interrupcion-legal-del-embarazo/resource/755e9b54-401d-40a6-8787-c45a8f97937e) from a Mexican public agency about legal pregnancy interruption from 2016 - 2018 (updated in 2023).
+
+```{r}
+# loading the dataset
+data <- read.csv("ile_2016_2018.csv", stringsAsFactors = F, fileEncoding = "UTF-8")
+# don't forget to include the path to your WD when importing a dataset in the project space.
+# (colnames are in Spanish)
+
+names(data)[1:5]
+
+data_clean_names <-  clean_names(data)
+
+names(data_clean_names)[1:5]
+
+```
+
+---
+
+# Second Use Case: Using the `tabyl` function
+**This dataset is perfect for us to use the `tabyl` function to display neat tables on variables we want to analyze.**
+
+Why not using `table()`? 
+- we cannot using the pipe %>% with this base R function 
+- `table()` doesn't give us data frames as outputs. (`tabyl` gives us a dataframe in tidy format consistent with tidyverse)
+- Only gives us one-dimensional variables, and `tabyl` provides automatic proportions and counts. 
+
+### Example 1: One-dimensional table
+
+```{r}
+# a one-dimensional table
+tabyl(data_clean_names$anio)
+```
+---
+
+# Second Use Case: Using the `tabyl` function
+
+### Example 2: Two-way table
+```{r}
+table<- data_clean_names %>% 
+  tabyl(anio, estado_civil) %>% 
+  drop_na(anio)
+print(table)
+```
+
+---
+
+# Second Use Case: Using the `tabyl` function
+
+### Now we recreate percentages
+Here, we have to do some additional coding the add the % in this two-way table. 
+
+```{r}
+#now with % on both tables
+table2 <- data_clean_names %>% 
+  tabyl(anio, estado_civil) %>% 
+  adorn_totals("col") %>%              #Total per row
+  adorn_percentages("row") %>%         #percentage per row
+  adorn_pct_formatting(digits = 2) %>% #rounded value
+  adorn_ns() %>%                       #adding absolute numbers
+  adorn_title()                      #adds variable name
+
+head(table2)
+```
+
+---
+
+# Second Use Case: Using the `tabyl` function
+### With three variables
+As expected, oftentimes we need tables that can relate over two variables at once.
+Although, for this reason we need prettier design to relate the information easily. 
+
+For this reason, we can do the following: create a table with tabyl and 
+use adorn for prettier designs.
+
+#### Three-way `tabyl` 
+```{r}
+data_clean_names  %>% 
+  tabyl(resultado_ile, recibio_consejeria, anio) %>% 
+  adorn_percentages("all") %>% 
+  adorn_pct_formatting(digits = 1) %>%  
+  adorn_title() %>% 
+  kable() %>% 
+  kable_styling(font_size = 8.5)#To fit the table by reducing font size
+
+```
+---
+# Additional Useful Functions 
+
+### Fixing dates
+.pull-left[
+For fixing dates we have the option to use janitor. 
+The `excel_numeric_to_date()` function solves the problem where in Excel dates are represented in numbers. 
+
+This function turns Excel's numeric format into R date format. 
+
+```{r}
+library(janitor)
+excel_date <- 44197 # this means the number of days since a 
+#specific start date (january 1 1900 or january 1 1904 depending on the system). 
+r_date <- excel_numeric_to_date(excel_date)
+print(r_date)
+
+```
+]
+.pull-right[
+We also have the `convert_to_date()` function which converts a mix of date and datetime formats to date.
+```{r}
+excel_dates <- c(44197, 44228)  # Corresponding to 2021-01-01 and 2021-02-01
+r_dates <- convert_to_date(excel_dates)
+print(r_dates)  # Outputs "2021-01-01" and "2021-02-01
+```
+]
+---
+# Additional Useful Functions 
+### Rounding numbers 
+
+
+This function "round_to_fraction" to round decimals to the nearest fraction. 
+WE don't use base R "round" function uses "bankers rounding" which means that halves are rounded to the nearest even number. 
+Example: 
+
+```{r}
+# Rounding to the nearest quarter que denominator = 4.
+round_to_fraction(0.37, 4)  
+
+numbers<- c(3.6,2.4) 
+round(numbers)
+```
+---
+# Additional Useful Functions  
+
+### Detecting duplicated records 
+In this case we use the `get_dupes()` function.  
+- Detects duplicate records when cleaning data in specific columns
+- The output includes a dataframe with the specified columns (or all), and 
+a column named `dupe_count` which has the number of times each value 
+appears in the dataset.
+
+.pull-left[
+```{r}
+#EXAMPLE: Create a sample dataframe
+df <- data.frame(ID = c(1, 2, 3, 4, 2, 5),
+                 Name = c("Alice", "Bob", "Charlie", "David", "Bob", "Eve"))
+```
+]
+.pull-right[
+```{r}
+# Identify duplicates in the ID column
+get_dupes(df, ID)
+```
+]
+.center[
+```{r}
+# Identify duplicates based on combinations of ID and Name
+get_dupes(df, ID, Name)
+```
+]
+---
+# Further Useful Functions
+### Dealing with NAs
+
+- `remove_empty()`: Remove empty rows or columns from a dataframe.
+- `convert_to_na()`: Convert specific values in a dataframe to NAs.
+
+
+```{r}
+#sample data
+df <- data.frame(
+  Name = c("Alice", "Bob", "Charlie", "David", "Eve", "Frank"),
+  Age = c(25, NA, 30, 32, NA, NA),
+  Gender = c("Female", "Male", "", "Male", "Female", ""),
+  Alt_Gender = c("", "", "Male", "", "", "Male"),
+  Comments = c("", "", "", "", "", ""))
+#remove empty 
+df_clean <- df %>% 
+  remove_empty(c("rows", "cols"))
+#convert_to_na()
+#df_clean <- df_clean %>% 
+ # convert_to_na(list(Gender = "", Alt_Gender = "", Name = ""))
+```
+
+---
+class: inverse, center, middle
+
+# Now let's introduce `forcats`
+
+---
+# Table of Contents
+
+.pull-left[
+**janitor**
+- Introduction to `janitor`
+- Cleaning Names with `clean_names()`
+- Tabulating Data with `tabyl()`
+- Hands-on with `janitor`: Public Innovation Lab in Mexico
+- Additional functionalities
+]
+
+.pull-right[
+**forcats**
+- Introduction to `forcats`
+- Overview of Key `forcats` Functions
+  - Inspect, Combine, and Modify Factors
+  - Change Order, Value, and Add/Drop Levels
+- Hands-on with `forcats`: A Small Example using `gss_cat`
+]
+
+---
+
+# Introduction to Factors
+
+Factors play an essential role when dealing with **categorical data** (variables that have a fixed and known set of possible values) in R.
+
+> "A **factor** is an integer vector with a **levels** attribute that stores a set of mappings between integers and categorical values." - [Factors with forcats, RStudio](https://rstudio.github.io/cheatsheets/html/factors.html)
+
+Key points about factors:
+1. **Structured Representation**: Unlike character vectors, they don't need to follow alphabetical order.
+2. **Tidyverse Compatibility**: Factors seamlessly integrate into the tidyverse ecosystem.
+
+
+### Where could data scientists come across factors?
+#### Surveys and Questionnaires:
+
+- Questions with **multiple-choice** answers (e.g., "How satisfied are you with our service?" with responses: "Very Satisfied", "Satisfied", "Neutral", "Dissatisfied", "Very Dissatisfied").
+- **Demographic data** like gender (e.g., "Male", "Female", "Other", "Prefer not to say").
+---
+
+# Say Hello to `forcats`
+
+`forcats` is a member of the tidyverse family, dedicated to dealing with **categorical variables** in R.
+
+.pull-left-narrow[.center[
+  <img src="https://forcats.tidyverse.org/logo.png" style="width:90px;">
+]]
+.pull-right-wide-2[
+**Name Origin**: "for" + "cats" - because it's for categorical variables ;-) 
+]
+<div style="clear:both;"></div>
+
+**Installation**: To install, simply run:
+```{r eval=FALSE}
+install.packages("forcats")
+# Or
+install.packages("tidyverse")
+```
+
+**Key Functionalities**:
+- Inspecting factor levels
+- Changing order and value of levels
+- Combining and expanding factors
+- Handling missing values and unused levels
+
+---
+# Overview of (selected) `forcats` functions
+
+
+.column[
+**Inspect**
+<br>
+`fct_count()`
+`fct_unique()`
+]
+
+.column[
+**Combine**
+<br>
+`fct_c(...)`
+]
+
+.column[
+**Change Order**
+<br>
+`fct_relevel()`
+`fct_infreq()`
+`fct_reorder()`
+]
+
+.column[
+**Change Value(s)**
+<br>
+`fct_recode()`
+`fct_lump_min()`
+`fct_other()`
+]
+
+.column[
+**Add or Drop**
+<br>
+`fct_drop()`
+`fct_na_value_to_level()`
+]
+
+---
+
+# Inspect Factors
+
+.pull-left-narrow[
+  <img src="img/fct_count.png" style="width:115px;">
+]
+.pull-right-wide[
+`fct_count(f, sort = FALSE, prop = FALSE)`  
+Count the number of values with each level.
+]
+<div style="clear:both;"></div>
+
+**Example**:
+```{r}
+f <- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_count(f)
+```
+
+---
+
+# Inspect Factors (cont.)
+
+.pull-left-narrow[
+  <img src="img/fct_count.png" style="width:115px;">
+]
+.pull-right-wide[
+`fct_count(f, sort = FALSE, prop = FALSE)`  
+Count the number of values with each level.
+]
+<div style="clear:both;"></div>
+
+**Example**:
+```{r, results = 'hide'}
+fruits <- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_count(fruits)
+```
+
+.pull-left-narrow[
+<img src="img/fct_unique.png" style="width:125px;">
+]
+.pull-right-wide[
+`fct_unique(f)` 
+<br>
+Return the unique values, removing duplicates.
+]
+<div style="clear:both;"></div>
+
+**Example**:
+```{r}
+fct_unique(fruits)
+```
+---
+# Combine Factors
+
+.pull-left-narrow[
+  <img src="img/fct_c.png" style="width:125px;">
+]
+.pull-right-wide[
+`fct_c(...)`  
+Combine factors with different levels.
+]
+<div style="clear:both;"></div>
+
+**Example**:
+```{r}
+f1 <- factor(c("a", "c"))
+f2 <- factor(c("b", "a"))
+fct_c(f1, f2)
+```
+---
+# Combine Factors (cont.)
+
+.pull-left-narrow[
+  <img src="img/fct_c.png" style="width:125px;">
+]
+.pull-right-wide[
+`fct_c(...)`  
+Combine factors with different levels.
+]
+<div style="clear:both;"></div>
+
+**Example**:
+```{r, results = 'hide'}
+fct_c(f1, f2)
+```
+
+.pull-left-narrow[
+<img src="img/fct_unify.png" style="width:120px;">
+]
+.pull-right-wide[
+`fct_unify(fs, levels = lvls_union(fs))`
+<br>
+Standardize levels across a list of factors.
+]
+
+<div style="clear:both;"></div>
+**Example**:
+```{r}
+fct_unify(list(f2, f1))
+```
+---
+
+# Change the Order of Levels
+
+.pull-left-narrow[
+  <img src="img/fct_infreq.png" style="width:120px;">
+]
+.pull-right-wide[
+`fct_infreq(f, ordered = NA)` 
+<br>
+Reorder levels by the frequency in which they appear in the data (highest frequency first).
+]
+<div style="clear:both;"></div>
+
+**Example**:
+```{r}
+fruits <- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_infreq(fruits)
+```
+
+---
+
+# Change the Order of Levels (cont.)
+
+.pull-left-narrow[
+  <img src="img/fct_infreq.png" style="width:120px;">
+]
+.pull-right-wide[
+`fct_infreq(f, ordered = NA)` 
+<br>
+Reorder levels by the frequency in which they appear in the data (highest frequency first).
+]
+<div style="clear:both;"></div>
+
+**Example**:
+```{r, results = 'hide'}
+fruits <- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_infreq(fruits)
+```
+
+.pull-left-narrow[
+<img src="img/fct_inorder.png" style="width:120px;">
+]
+.pull-right-wide[
+`fct_inorder(f, ordered = NA)`
+<br>
+Reorder levels by the order in which they appear in the data.
+]
+<div style="clear:both;"></div>
+
+**Example**:
+```{r}
+fct_inorder(fruits)
+```
+---
+
+# Change the Value of Levels
+
+.pull-left-narrow[
+  <img src="img/fct_recode.png" style="width:120px;">
+]
+.pull-right-wide[
+`fct_recode(f, ...)`  
+Manually change levels.
+]
+<div style="clear:both;"></div>
+
+**Example**:
+```{r}
+fruits <- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_recode(fruits, cherry = "apple")
+```
+---
+
+# Change the Value of Levels (cont.)
+
+.pull-left-narrow[
+  <img src="img/fct_recode.png" style="width:120px;">
+]
+.pull-right-wide[
+`fct_recode(f, ...)`  
+Manually change levels.
+]
+<div style="clear:both;"></div>
+
+**Example**:
+```{r, results = 'hide'}
+fruits <- factor(c("apple", "banana", "apple", "cherry", "banana", "apple"))
+fct_recode(fruits, cherry = "apple")
+```
+
+.pull-left-narrow[
+  <img src="img/fct_other.png" style="width:120px;">
+]
+.pull-right-wide[
+`fct_other(f, keep, drop, other_level = "Other")`  
+Replace all levels not in `keep` with the value of `other`.
+]
+<div style="clear:both;"></div>
+
+**Example**:
+```{r }
+fct_other(f, keep = c("banana", "cherry"))
+```
+---
+# Add or Drop Levels
+
+.pull-left-narrow[
+  <img src="img/fct_drop.png" style="width:120px;">
+]
+.pull-right-wide[
+`fct_drop(f)`  
+Drop unused levels from a factor.
+]
+<div style="clear:both;"></div>
+
+**Example**:
+```{r}
+vehicles <- factor(c("car", "bike", "bus"), 
+                   levels = c("car", "bike", "bus", "train"))
+# "train" is an unused level
+fct_drop(vehicles)
+```
+---
+# Add or Drop Levels (cont.)
+
+.pull-left-narrow[
+  <img src="img/fct_drop.png" style="width:120px;">
+]
+.pull-right-wide[
+`fct_drop(f)`  
+Drop unused levels from a factor.
+]
+<div style="clear:both;"></div>
+
+**Example**:
+```{r, results = 'hide'}
+fct_drop(vehicles)
+```
+
+.pull-left-narrow[
+<img src="img/fct_explicit_na.png" style="width:120px;">
+]
+.pull-right-wide[
+`fct_na_value_to_level(f, level = "(Missing)")`
+<br>
+Convert NA to a specified level in a factor.
+]
+
+<div style="clear:both;"></div>
+
+<div style="clear:both;"></div>
+**Example**:
+```{r}
+vehicles_with_na <- factor(c("car", "bike", NA, "bus", NA, "car"), 
+                           levels = c("car", "bike", "bus", "train"))
+# Convert NA values to "train"
+fct_na_value_to_level(vehicles_with_na, level = "train")
+```
+
+---
+# Application
+
+### Aggregating factor levels in `gss_cat` data
+
+The `gss_cat` dataset provides a sample from the General Social Survey, a US survey by the NORC at the University of Chicago.
+
+```{r comment='#'}
+library(tidyverse)
+head(gss_cat)
+```
+---
+# Application (cont.)
+
+### Aggregating factor levels in `gss_cat` data
+
+The `gss_cat` dataset provides a sample from the General Social Survey, a US survey by the NORC at the University of Chicago.
+
+```{r comment='#'}
+relig_counts <- fct_count(gss_cat$relig)
+head(relig_counts, 10)
+```
+---
+
+# Application (cont.)
+
+### Aggregating factor levels in `gss_cat` data
+
+The `gss_cat` dataset provides a sample from the General Social Survey, a US survey by the NORC at the University of Chicago.
+
+--
+
+To simplify plots or tables, we often lump together the small groups of a factor. The `fct_lump_n()` function from the `forcats` package serves this purpose by grouping the smallest categories into "Other".
+
+```{r}
+library(forcats)
+library(dplyr)
+
+gss_cat %>%
+  mutate(relig = fct_lump_n(relig, n = 4)) %>%
+  count(relig) %>%
+  filter(!relig == "None") %>%
+  arrange(desc(n))
+```
+In this code:
+
+- `fct_lump_n(relig, n = 3)` will keep the top 3 most frequent religions and lump the rest into the "Other" category.
+- `filter(!relig == "None")` will remove the "None" category from the output.
+- `arrange(desc(n))` arranges the levels in descending order.
+---
+
+# Application (cont.)
+
+### Aggregating factor levels in `gss_cat` data
+
+The `gss_cat` dataset provides a sample from the General Social Survey, a US survey by the NORC at the University of Chicago.
+
+To simplify plots or tables, we often lump together the small groups of a factor. The `fct_lump_n()` function from the `forcats` package serves this purpose by grouping the smallest categories into "Other".
+
+```{r results='hide'}
+library(forcats)
+library(dplyr)
+
+gss_cat %>%
+  mutate(relig = fct_lump_n(relig, n = 4)) %>%
+  count(relig) %>%
+  filter(!relig == "None") %>%
+  arrange(desc(n))
+```
+In this code:
+
+- `fct_lump_n(relig, n = 4)` will keep the top 4 most frequent religions and lump the rest into the "Other" category.
+- `filter(!relig == "None")` will remove the "None" category from the output.
+- `arrange(desc(n))` arranges the levels in descending order.
+---
+class: inverse, center, middle
+
+# Thank you for watching!
+
+---
+class: inverse, center, middle
+
+# Ready to become an expert in `janitor` and `forcats`?
+
+Scan the QR code below join the quiz:
+
+<img src="img/mentimeter_qr_code.png" width="250">
+
+
+Or go to **menti.com** and enter the code **49 85 53 3**
+
+---
+
+# Resources
+
+.pull-left[
+#### `janitor`
+- [Package janitor documentation](https://cran.r-project.org/web/packages/janitor/janitor.pdf)
+- [GitHub Repository](https://github.com/sfirke/janitor)
+   
+**For original material on the** `janitor` **package**
+
+- [Package janitor documentation](https://cran.r-project.org/web/packages/janitor/janitor.pdf)
+- [GitHub Repository](https://github.com/sfirke/janitor)
+
+**Additional Resources** 
+
+- [Cleaning and Exploring Data with the “janitor”](https://towardsdatascience.com/cleaning-and-exploring-data-with-the-janitor-package-ee4a3edf085e) 
+- [RDocumentation - Janitor](https://www.rdocumentation.org/packages/janitor/versions/2.2.0r)
+- [Tabyl: frequency tables for R users](https://towardsdatascience.com/tabyl-a-frequency-table-for-the-modern-r-user-e061cd48baef)
+]
+
+.pull-right[
+#### `forcats`
+- [Official R Documentation](https://forcats.tidyverse.org/) (including all sublinks)
+- Wickham, H., & Grolemund, G. (2017). Factors. In R for Data Science (1st ed.). O’Reilly Media, Inc. https://r4ds.had.co.nz/factors.html
+- Wickham, H., & Grolemund, G. (2023). Factors. In R for Data Science (2nd ed.). O’Reilly Media, Inc. https://r4ds.hadley.nz/factors.html
+- McNamara A, Horton NJ. 2017. Wrangling categorical data in R. PeerJ Preprints 5:e3163v2 https://doi.org/10.7287/peerj.preprints.3163v2
+
+**Additional Resources**
+<br>
+[`forcats` cheatsheet](https://rstudio.github.io/cheatsheets/factors.pdf) 
+<br>
+*Credits to the nice images!*
+]
+
+
+
+
+
+
+
