@@ -26,6 +26,7 @@ library(dplyr)
 library(ggplot2)
 library(knitr)
 library(kableExtra)
+library(knitr)
 ```
 
 ```{r xaringan-themer, include=FALSE, warning=FALSE}
@@ -863,8 +864,7 @@ class: inverse, center, middle
 
 Scan the QR code below join the quiz:
 
-<img src="/img/mentimeter_qr_code.png" width="250">
-
+<img src="img/mentimeter_qr_code.png" width="250">
 
 Or go to **menti.com** and enter the code **49 85 53 3**
 
