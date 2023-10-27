@@ -1,4 +1,4 @@
-# Cleaning and wrangling data with `janitor` and `forcats`
+# Cleaning and wrangling data with *janitor* and *forcats*
 
 ## Summary
 
