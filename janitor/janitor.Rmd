@@ -189,7 +189,8 @@ library("janitor")
 
 ### Clean data frame names with `clean_names()`
 
-Datasets not always include clear and concise names for columns. Column names in a dataset should be 
+Datasets not always include clear and concise names for columns. Column names in a dataset should use lowercase letters, numbers, and underscores. Underscores areu sed to separate 
+words within a variable name
 
 - Function to be used: `clean_names()`
 - This function can be used for piped dataframes workflows. 
