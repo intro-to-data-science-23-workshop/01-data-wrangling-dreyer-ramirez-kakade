@@ -58,3 +58,5 @@ The material in this repository is made available under the [MIT license](http:/
 **Elena Dreyer** prepared the presentation slides for `forcats`, recorded the session on `forcats` and created the Mentimeter quiz.
 
 **Luis Fernando Ramirez Ruiz** prepared the presentation slides for `janitor`, recorded the session on `janitor` and created the practice material.
+
+**Shruti Kakade** Added quiz questions for both the packages.
